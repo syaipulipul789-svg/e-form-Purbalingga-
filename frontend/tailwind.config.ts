@@ -9,19 +9,19 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        'pbg-green': '#059669',
-        'pbg-yellow': '#FFE600',
-        'pbg-canvas': '#FFFDF8',
-        'pbg-ink': '#121212',
-        'pbg-coral': '#FF5C5C',
-        'pbg-blue': '#38BDF8',
-        'pbg-purple': '#C4B5FD',
+        'pbg-emerald': '#065F46',       // Deep Forest Emerald (resmi Pemkab)
+        'pbg-emerald-light': '#059669',
+        'pbg-slate': '#0F172A',         // Border & Text Slate pekat
+        'pbg-canvas': '#F8FAFC',        // Background canvas bersih
+        'pbg-accent': '#0284C7',        // Biru layanan publik
+        'pbg-amber': '#D97706',         // Aksen emas elegan
+        'pbg-muted': '#64748B',         // Teks sekunder slate
       },
       boxShadow: {
-        'brutal-sm': '2px 2px 0px #121212',
-        'brutal': '4px 4px 0px #121212',
-        'brutal-lg': '6px 6px 0px #121212',
-        'brutal-xl': '8px 8px 0px #121212',
+        'brutal-sm': '2px 2px 0px #0F172A',
+        'brutal': '4px 4px 0px #0F172A',
+        'brutal-lg': '6px 6px 0px #0F172A',
+        'brutal-xl': '8px 8px 0px #0F172A',
       },
       borderWidth: {
         '3': '3px',

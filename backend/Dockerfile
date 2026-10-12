@@ -10,6 +10,7 @@ RUN go mod download || true
 
 COPY . .
 
+RUN go mod tidy
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o server ./cmd/server/main.go
 
 # Runtime Stage

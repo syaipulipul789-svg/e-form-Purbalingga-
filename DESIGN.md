@@ -34,29 +34,25 @@ Dalam konteks pelayanan publik Kabupaten Purbalingga, tema ini memberikan keuntu
 
 | Nama Token | Hex Code | Tailwind Utility | Peran & Penggunaan |
 | :--- | :--- | :--- | :--- |
-| **Canvas Background** | `#FFFDF8` | `bg-[#FFFDF8]` | Latar belakang utama aplikasi (hangat & nyaman di mata) |
-| **Ink Black (Border/Text)** | `#121212` | `border-black text-black` | Border tebal (2px/3px), teks judul, dan hard shadow |
-| **Purbalingga Green** | `#059669` | `bg-emerald-600` | Warna utama identitas daerah, tombol submit/simpan |
-| **Sunburst Yellow** | `#FFE600` | `bg-[#FFE600]` | Aksen perhatian tinggi, kartu sorotan, badge aktif |
-| **Electric Sky** | `#38BDF8` | `bg-sky-400` | Aksen info, kategori form, tombol preview builder |
-| **Vibrant Coral** | `#FF5C5C` | `bg-rose-500` | Status ditutup, tombol hapus/reset, badge required |
-| **Soft Lilac** | `#C4B5FD` | `bg-purple-300` | Tag kategori dinas/OPD, kartu statistik sekunder |
+| **Canvas Background** | `#F8FAFC` | `bg-slate-50` / `bg-[#F8FAFC]` | Latar belakang utama bersih, modern, dan tidak silau |
+| **Slate Ink (Border/Text)** | `#0F172A` | `border-slate-900 text-slate-900` | Border 2px presisi, teks judul tajam, dan solid shadow |
+| **Deep Forest Emerald** | `#065F46` | `bg-[#065F46]` | Identitas resmi Pemkab Purbalingga, tombol aksi utama |
 | **Pure White** | `#FFFFFF` | `bg-white` | Latar kartu formulir & input field |
+| **Civic Blue Accent** | `#0284C7` | `bg-sky-600` | Aksen info sekunder & status aktif |
+| **Muted Slate** | `#64748B` | `text-slate-500` | Teks keterangan, placeholder, dan metadata tanggal |
 
 ### 3.2. Bayangan Neobrutalism (Hard Drop Shadows)
 
-Tidak menggunakan blur shadow standar. Semua bayangan berupa bidang datar hitam pekat (`#121212`):
+Semua bayangan berupa bidang datar hitam slate pekat (`#0F172A`) yang rapi dan elegan:
 
 - **Shadow Standar (Kartu & Panel):**
-  `shadow-[4px_4px_0px_#121212]`
-- **Shadow Besar (Modal, Header Banner, Hero Card):**
-  `shadow-[6px_6px_0px_#121212]`
-- **Shadow Kecil (Badge, Tombol Mungil):**
-  `shadow-[2px_2px_0px_#121212]`
+  `shadow-[4px_4px_0px_#0F172A]`
+- **Shadow Kecil (Tombol & Badge):**
+  `shadow-[2px_2px_0px_#0F172A]` atau `shadow-[3px_3px_0px_#0F172A]`
 - **Interaksi Hover & Active (Efek Tombol Timbul/Ditekan):**
-  - Normal: `shadow-[4px_4px_0px_#121212] translate-x-0 translate-y-0`
-  - Hover: `hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#121212]`
-  - Active / Pressed: `active:translate-x-[4px] active:translate-y-[4px] active:shadow-none`
+  - Normal: `shadow-[3px_3px_0px_#0F172A] translate-x-0 translate-y-0`
+  - Hover: `hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_#0F172A]`
+  - Active / Pressed: `active:translate-x-[3px] active:translate-y-[3px] active:shadow-none`
 
 ### 3.3. Border & Radius
 - **Tebal Border:** `border-2 border-black` (pada input & kartu umum) atau `border-3 border-black` (pada tombol aksi utama).
