@@ -1,0 +1,73 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: eform-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-purbalinggapass}
+      POSTGRES_DB: ${DB_NAME:-eform_purbalingga}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/migrations:/docker-entrypoint-initdb.d:ro
+    networks:
+      - eform-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-eform_purbalingga}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: eform-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      APP_PORT: ${APP_PORT:-8080}
+      APP_SECRET: ${APP_SECRET:-purbalingga-super-secret-key-change-in-production-min32chars}
+      DATABASE_URL: postgres://${DB_USER:-postgres}:${DB_PASSWORD:-purbalinggapass}@postgres:5432/${DB_NAME:-eform_purbalingga}?sslmode=disable
+      UPLOAD_DIR: /app/storage/uploads
+      MAX_UPLOAD_SIZE_MB: ${MAX_UPLOAD_SIZE_MB:-10}
+      SIDAMI_API_BASE: ${SIDAMI_API_BASE:-https://api.sidami.purbalinggakab.go.id/api}
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    volumes:
+      - uploads_data:/app/storage/uploads
+    networks:
+      - eform-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: eform-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8080/api/v1}
+      NEXT_PUBLIC_APP_NAME: ${NEXT_PUBLIC_APP_NAME:-E-Form Kabupaten Purbalingga}
+      NEXT_PUBLIC_STORAGE_URL: ${NEXT_PUBLIC_STORAGE_URL:-http://localhost:8080/uploads}
+    ports:
+      - "3000:3000"
+    networks:
+      - eform-net
+
+volumes:
+  pgdata:
+    name: eform_pgdata
+  uploads_data:
+    name: eform_uploads_data
+
+networks:
+  eform-net:
+    name: eform_network
+    driver: bridge

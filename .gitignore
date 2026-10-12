@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Next.js build output
+.next/
+out/
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Go binaries
+backend/server
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Storage uploads (local user data)
+backend/storage/uploads/*
+!backend/storage/uploads/.gitkeep
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
