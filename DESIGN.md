@@ -30,33 +30,39 @@ Dalam konteks pelayanan publik Kabupaten Purbalingga, tema ini memberikan keuntu
 
 ## 3. Token Desain (Design Tokens)
 
-### 3.1. Palet Warna (Color Palette)
+### 3.1. Palet Warna (Color Palette - Colorful & Professional Neobrutalism)
 
 | Nama Token | Hex Code | Tailwind Utility | Peran & Penggunaan |
 | :--- | :--- | :--- | :--- |
-| **Canvas Background** | `#F8FAFC` | `bg-slate-50` / `bg-[#F8FAFC]` | Latar belakang utama bersih, modern, dan tidak silau |
-| **Slate Ink (Border/Text)** | `#0F172A` | `border-slate-900 text-slate-900` | Border 2px presisi, teks judul tajam, dan solid shadow |
-| **Deep Forest Emerald** | `#065F46` | `bg-[#065F46]` | Identitas resmi Pemkab Purbalingga, tombol aksi utama |
-| **Pure White** | `#FFFFFF` | `bg-white` | Latar kartu formulir & input field |
-| **Civic Blue Accent** | `#0284C7` | `bg-sky-600` | Aksen info sekunder & status aktif |
-| **Muted Slate** | `#64748B` | `text-slate-500` | Teks keterangan, placeholder, dan metadata tanggal |
+| **Canvas Background** | `#FFFDF5` | `bg-[#FFFDF5]` / `pbg-canvas` | Latar belakang warm vintage paper canvas, nyaman di mata |
+| **Slate Ink (Border/Text)** | `#0F172A` | `border-slate-900 text-slate-900` | Border 2-3px presisi tinggi, solid shadow, teks judul tajam |
+| **Canary Sunshine** | `#FFE600` | `bg-[#FFE600]` / `pbg-yellow` | Aksen utama Neobrutalism, header tape, kartu UMKM, CTA fokus |
+| **Purbalingga Emerald** | `#059669` | `bg-[#059669]` / `pbg-emerald` | Identitas resmi Pemkab Purbalingga, tombol simpan/kirim |
+| **Fresh Mint** | `#A7F3D0` | `bg-[#A7F3D0]` / `pbg-mint` | Status sukses, badge chaining Sidami, kartu kesehatan |
+| **Electric Sky** | `#38BDF8` | `bg-[#38BDF8]` / `pbg-sky` | Layanan kependudukan, badge portal publik, verifikasi |
+| **Royal Amethyst** | `#A855F7` | `bg-[#A855F7]` / `pbg-purple` | Survei kepuasan, analitik respon, pelatihan kerja BLK |
+| **Coral Rose** | `#F43F5E` | `bg-[#F43F5E]` / `pbg-coral` | Bantuan sosial, badge Wajib NIK, peringatan & perlindungan data |
+| **Tangerine Sunset** | `#FB923C` | `bg-[#FB923C]` / `pbg-orange` | Urgensi batas waktu pengisian, kuota formulir, ketenagakerjaan |
+| **Pure White** | `#FFFFFF` | `bg-white` | Kontainer kartu formulir, modul input data pengguna |
 
 ### 3.2. Bayangan Neobrutalism (Hard Drop Shadows)
 
-Semua bayangan berupa bidang datar hitam slate pekat (`#0F172A`) yang rapi dan elegan:
+Semua bayangan berupa bidang datar solid tanpa blur (`#0F172A`) yang rapi, tajam, dan elegan:
 
 - **Shadow Standar (Kartu & Panel):**
-  `shadow-[4px_4px_0px_#0F172A]`
+  `shadow-[4px_4px_0px_#0F172A]` atau `shadow-[5px_5px_0px_#0F172A]`
 - **Shadow Kecil (Tombol & Badge):**
   `shadow-[2px_2px_0px_#0F172A]` atau `shadow-[3px_3px_0px_#0F172A]`
+- **Shadow Besar (Hero Container / Modal):**
+  `shadow-[6px_6px_0px_#0F172A]` atau `shadow-[8px_8px_0px_#0F172A]`
 - **Interaksi Hover & Active (Efek Tombol Timbul/Ditekan):**
-  - Normal: `shadow-[3px_3px_0px_#0F172A] translate-x-0 translate-y-0`
+  - Normal: `shadow-[4px_4px_0px_#0F172A] translate-x-0 translate-y-0`
   - Hover: `hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_#0F172A]`
   - Active / Pressed: `active:translate-x-[3px] active:translate-y-[3px] active:shadow-none`
 
 ### 3.3. Border & Radius
-- **Tebal Border:** `border-2 border-black` (pada input & kartu umum) atau `border-3 border-black` (pada tombol aksi utama).
-- **Sudut (Border Radius):** `rounded-md` (6px) atau `rounded-lg` (8px) untuk memberikan kesan ramah modern tanpa menghilangkan ketegasan brutalist.
+- **Tebal Border:** `border-2 border-slate-900` (pada input & kartu umum) atau `border-3 border-slate-900` (pada tombol aksi utama dan header box).
+- **Sudut (Border Radius):** `rounded-xl` (12px) atau `rounded-2xl` (16px) untuk nuansa modern, ramah, dan premium tanpa menghilangkan ketegasan brutalist.
 
 ### 3.4. Tipografi
 - **Font Utama (Teks & Antarmuka):** `Plus Jakarta Sans` atau `Outfit` (Sans-Serif tebal, bersih, geometri modern).

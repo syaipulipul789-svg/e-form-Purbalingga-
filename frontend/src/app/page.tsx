@@ -3,19 +3,28 @@
 import React, { useState, useMemo } from 'react';
 import {
   FileText,
-  ShieldCheck,
   Search,
   Filter,
   CheckCircle2,
-  Calendar,
   Building2,
   Users,
   MapPin,
   ArrowRight,
   HelpCircle,
   Clock,
-  ChevronRight,
   Lock,
+  Sparkles,
+  HeartHandshake,
+  Briefcase,
+  GraduationCap,
+  Activity,
+  FileCheck,
+  ChevronRight,
+  ShieldCheck,
+  ExternalLink,
+  QrCode,
+  Layers,
+  Sparkle,
 } from 'lucide-react';
 
 interface FormItem {
@@ -28,92 +37,134 @@ interface FormItem {
   deadline: string;
   totalResponses: number;
   requiresNik: boolean;
-  isPopular?: boolean;
+  colorTheme: {
+    banner: string;       // Top accent color banner
+    badge: string;        // Category badge background & text
+    btnColor: string;     // Button style
+    shadowColor: string;  // Colored shadow on hover
+    iconBg: string;
+  };
 }
 
 const SAMPLE_FORMS: FormItem[] = [
   {
     id: 'f1',
     slug: 'bansos-umkm-purbalingga-2026',
-    title: 'Pendataan Pelaku Usaha Mikro (UMKM) 2026',
-    opd: 'Dinas Koperasi dan UKM',
+    title: 'Pendataan Pelaku Usaha Mikro (UMKM) & Bantuan Modal 2026',
+    opd: 'Dinas Koperasi dan UKM Purbalingga',
     category: 'Usaha & UMKM',
-    description: 'Inventarisasi data pelaku usaha mikro untuk verifikasi penerima bantuan permodalan dan fasilitas pembinaan legalitas.',
+    description: 'Inventarisasi data pelaku usaha mikro aktif untuk verifikasi calon penerima fasilitasi legalitas NIB gratis dan hibah permodalan daerah.',
     deadline: '30 Oktober 2026',
     totalResponses: 1420,
     requiresNik: true,
-    isPopular: true,
+    colorTheme: {
+      banner: 'bg-[#FFE600]',
+      badge: 'bg-[#FEF08A] text-amber-950 border-amber-500',
+      btnColor: 'bg-[#FFE600] text-slate-900 hover:bg-[#FACC15]',
+      shadowColor: 'hover:shadow-[4px_4px_0px_#CA8A04]',
+      iconBg: 'bg-[#FEF08A]',
+    },
   },
   {
     id: 'f2',
     slug: 'survei-kepuasan-masyarakat-diskominfo',
-    title: 'Survei Kepuasan Masyarakat (SKM) Pelayanan Diskominfo',
+    title: 'Survei Kepuasan Masyarakat (SKM) Layanan Diskominfo',
     opd: 'Dinas Komunikasi dan Informatika',
     category: 'Survei & Evaluasi',
-    description: 'Penilaian indeks kepuasan masyarakat atas kecepatan, transparansi, dan kemudahan fasilitas jaringan internet serta publikasi.',
+    description: 'Evaluasi transparansi informasi publik, kecepatan respon kanal aduan, dan kualitas konektivitas internet desa se-Kabupaten Purbalingga.',
     deadline: 'Terbuka Selalu',
     totalResponses: 854,
     requiresNik: false,
-    isPopular: true,
+    colorTheme: {
+      banner: 'bg-[#A855F7]',
+      badge: 'bg-[#F3E8FF] text-purple-950 border-purple-400',
+      btnColor: 'bg-[#A855F7] text-white hover:bg-[#9333EA]',
+      shadowColor: 'hover:shadow-[4px_4px_0px_#6D28D9]',
+      iconBg: 'bg-[#F3E8FF]',
+    },
   },
   {
     id: 'f3',
     slug: 'permohonan-layanan-kependudukan',
-    title: 'Permohonan Penerbitan Surat Kependudukan Daring',
+    title: 'Permohonan Daring Administrasi Kependudukan Terpadu',
     opd: 'Dinas Kependudukan dan Pencatatan Sipil',
     category: 'Kependudukan',
-    description: 'Pengajuan layanan administrasi kependudukan cepat tanpa antrean untuk warga di 18 Kecamatan Kabupaten Purbalingga.',
+    description: 'Pengajuan surat pengantar pindah datang, pembaharuan Kartu Keluarga, dan cetak kutipan akta kelahiran tanpa antre di loket dinas.',
     deadline: 'Terbuka Selalu',
     totalResponses: 2310,
     requiresNik: true,
-    isPopular: false,
+    colorTheme: {
+      banner: 'bg-[#38BDF8]',
+      badge: 'bg-[#E0F2FE] text-sky-950 border-sky-400',
+      btnColor: 'bg-[#0284C7] text-white hover:bg-[#0369A1]',
+      shadowColor: 'hover:shadow-[4px_4px_0px_#0369A1]',
+      iconBg: 'bg-[#E0F2FE]',
+    },
   },
   {
     id: 'f4',
     slug: 'pelatihan-kerja-blk-purbalingga',
-    title: 'Pendaftaran Peserta Pelatihan Kerja BLK Batch IV',
-    opd: 'Dinas Tenaga Kerja',
+    title: 'Pendaftaran Peserta Pelatihan Kerja BLK Purbalingga Angkatan IV',
+    opd: 'Dinas Tenaga Kerja Purbalingga',
     category: 'Ketenagakerjaan',
-    description: 'Program pelatihan kejuruan teknik otomotif, tata boga, garmen, dan teknologi informasi gratis bersertifikasi BNSP.',
+    description: 'Program beasiswa kejuruan teknik otomotif, operator garmen manufaktur, barista, dan digital marketing bersertifikasi kompetensi resmi BNSP.',
     deadline: '15 November 2026',
     totalResponses: 620,
     requiresNik: true,
-    isPopular: false,
+    colorTheme: {
+      banner: 'bg-[#FB923C]',
+      badge: 'bg-[#FFEDD5] text-orange-950 border-orange-400',
+      btnColor: 'bg-[#F97316] text-white hover:bg-[#EA580C]',
+      shadowColor: 'hover:shadow-[4px_4px_0px_#C2410C]',
+      iconBg: 'bg-[#FFEDD5]',
+    },
   },
   {
     id: 'f5',
     slug: 'bantuan-kesejahteraan-sosial-lansia',
-    title: 'Verifikasi Calon Penerima Bantuan Sosial Lansia Terlantar',
-    opd: 'Dinas Sosial',
+    title: 'Verifikasi Calon Penerima Program Asistensi Sosial Lanjut Usia',
+    opd: 'Dinas Sosial, Pemberdayaan Perempuan & PA',
     category: 'Bansos & Sosial',
-    description: 'Pengusulan dan pemutakhiran data terpadu warga lanjut usia tidak mampu oleh aparatur desa dan pendamping sosial.',
+    description: 'Pemutakhiran basis data terpadu (DTKS) warga lansia terlantar dan disabilitas berat untuk penetapan bantuan jaminan kebutuhan hidup bulanan.',
     deadline: '20 November 2026',
     totalResponses: 412,
     requiresNik: true,
-    isPopular: false,
+    colorTheme: {
+      banner: 'bg-[#FB7185]',
+      badge: 'bg-[#FFE4E6] text-rose-950 border-rose-400',
+      btnColor: 'bg-[#F43F5E] text-white hover:bg-[#E11D48]',
+      shadowColor: 'hover:shadow-[4px_4px_0px_#BE123C]',
+      iconBg: 'bg-[#FFE4E6]',
+    },
   },
   {
     id: 'f6',
     slug: 'evaluasi-pelayanan-kesehatan-puskesmas',
-    title: 'Evaluasi Mutu Pelayanan Kesehatan Puskesmas',
-    opd: 'Dinas Kesehatan',
+    title: 'Evaluasi & Umpan Balik Mutu Pelayanan Rawat Jalan Puskesmas',
+    opd: 'Dinas Kesehatan Purbalingga',
     category: 'Kesehatan',
-    description: 'Kuesioner evaluasi ketersediaan obat, keramahan tenaga medis, dan sarana prasarana puskesmas se-Kabupaten Purbalingga.',
+    description: 'Kuesioner evaluasi ketersediaan obat generik, ketepatan jadwal dokter, keramahan petugas, dan kenyamanan poli di 22 Puskesmas wilayah.',
     deadline: 'Terbuka Selalu',
     totalResponses: 980,
     requiresNik: false,
-    isPopular: false,
+    colorTheme: {
+      banner: 'bg-[#34D399]',
+      badge: 'bg-[#D1FAE5] text-emerald-950 border-emerald-400',
+      btnColor: 'bg-[#059669] text-white hover:bg-[#047857]',
+      shadowColor: 'hover:shadow-[4px_4px_0px_#047857]',
+      iconBg: 'bg-[#D1FAE5]',
+    },
   },
 ];
 
 const CATEGORIES = [
-  'Semua Kategori',
-  'Usaha & UMKM',
-  'Kependudukan',
-  'Bansos & Sosial',
-  'Kesehatan',
-  'Ketenagakerjaan',
-  'Survei & Evaluasi',
+  { name: 'Semua Kategori', activeBg: 'bg-[#0F172A] text-white', hoverBorder: 'hover:border-slate-900' },
+  { name: 'Usaha & UMKM', activeBg: 'bg-[#FFE600] text-slate-900', hoverBorder: 'hover:border-amber-500' },
+  { name: 'Kependudukan', activeBg: 'bg-[#38BDF8] text-slate-900', hoverBorder: 'hover:border-sky-500' },
+  { name: 'Bansos & Sosial', activeBg: 'bg-[#FB7185] text-white', hoverBorder: 'hover:border-rose-500' },
+  { name: 'Kesehatan', activeBg: 'bg-[#34D399] text-slate-900', hoverBorder: 'hover:border-emerald-500' },
+  { name: 'Ketenagakerjaan', activeBg: 'bg-[#FB923C] text-slate-900', hoverBorder: 'hover:border-orange-500' },
+  { name: 'Survei & Evaluasi', activeBg: 'bg-[#A855F7] text-white', hoverBorder: 'hover:border-purple-500' },
 ];
 
 export default function HomePage() {
@@ -133,45 +184,40 @@ export default function HomePage() {
   }, [searchQuery, selectedCategory]);
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] flex flex-col justify-between">
-      {/* Official Government Identity Bar */}
-      <div className="bg-[#065F46] text-white py-2 px-4 border-b border-emerald-950">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between text-xs gap-1.5 font-medium">
+    <div className="min-h-screen bg-[#FFFDF5] text-[#0F172A] flex flex-col justify-between selection:bg-[#FFE600] selection:text-slate-900 font-sans">
+      {/* 1. Official Civic Top Bar */}
+      <div className="bg-[#FFE600] text-slate-900 py-2.5 px-4 border-b-2 border-slate-900">
+        <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between text-xs gap-2 font-black">
           <div className="flex items-center gap-2">
-            <span className="font-bold tracking-wider uppercase text-[11px] bg-emerald-800/80 px-2 py-0.5 rounded border border-emerald-600/40">
-              Pemerintah Kabupaten Purbalingga
+            <span className="bg-slate-900 text-white px-2 py-0.5 rounded text-[10px] tracking-widest uppercase border border-slate-900 shadow-[1px_1px_0px_#CA8A04]">
+              PORTAL RESMI
             </span>
-            <span className="hidden md:inline text-emerald-200">•</span>
-            <span className="hidden md:inline text-emerald-100">
-              Dinas Komunikasi dan Informatika (Diskominfo)
+            <span className="tracking-tight text-slate-900">
+              PEMERINTAH KABUPATEN PURBALINGGA • DINAS KOMUNIKASI DAN INFORMATIKA
             </span>
           </div>
-          <div className="flex items-center gap-4 text-emerald-200 text-[11px]">
-            <span>Terintegrasi API Sidami</span>
-            <span>•</span>
-            <span className="text-emerald-100">Kerahasiaan Data Terlindungi</span>
+          <div className="text-[11px] font-extrabold text-slate-800 hidden sm:block">
+            Sistem Informasi Pelayanan Publik Terpadu
           </div>
         </div>
       </div>
 
-      {/* Main Header / Navigation */}
+      {/* 2. Main Header / Navigation */}
       <header className="bg-white border-b-2 border-slate-900 sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-18 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 bg-[#065F46] border-2 border-slate-900 rounded-md flex items-center justify-center text-white font-black text-lg shadow-[3px_3px_0px_#0F172A]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-20 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3.5">
+            {/* Purbalingga Logo Badge */}
+            <div className="w-12 h-12 bg-[#059669] border-2 border-slate-900 rounded-xl flex items-center justify-center text-white font-black text-xl shadow-[4px_4px_0px_#0F172A] hover:rotate-3 transition-transform cursor-pointer">
               PBG
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-extrabold text-lg tracking-tight text-slate-900">
+                <span className="font-black text-xl tracking-tight text-slate-900">
                   E-Form Purbalingga
                 </span>
-                <span className="hidden sm:inline-block text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 border border-slate-300 rounded">
-                  v1.0
-                </span>
               </div>
-              <p className="text-xs font-medium text-slate-600">
-                Sistem Formulir & Survei Digital Terpadu
+              <p className="text-xs font-bold text-slate-600">
+                Sistem Formulir Dinamis & Pelayanan Publik Digital Terpadu
               </p>
             </div>
           </div>
@@ -179,87 +225,155 @@ export default function HomePage() {
           <div className="flex items-center gap-3">
             <a
               href="#daftar-form"
-              className="cursor-pointer hidden md:inline-flex items-center gap-1.5 px-4 py-2 bg-white text-slate-800 font-bold text-xs border-2 border-slate-900 rounded hover:bg-slate-50 transition-all shadow-[2px_2px_0px_#0F172A]"
+              className="cursor-pointer hidden md:inline-flex items-center gap-2 px-4 py-2.5 bg-white text-slate-900 font-extrabold text-xs border-2 border-slate-900 rounded-lg shadow-[3px_3px_0px_#0F172A] hover:bg-slate-50 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_#0F172A] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all"
             >
-              <FileText className="w-3.5 h-3.5" />
-              Telusuri Formulir
+              <FileText className="w-4 h-4 text-emerald-700" />
+              <span>Katalog Formulir</span>
             </a>
             <button
               type="button"
-              className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-[#065F46] text-white font-bold text-xs border-2 border-slate-900 rounded shadow-[3px_3px_0px_#0F172A] hover:bg-[#047857] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_#0F172A] transition-all"
+              className="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 bg-[#FFE600] text-slate-900 font-black text-xs border-2 border-slate-900 rounded-lg shadow-[4px_4px_0px_#0F172A] hover:bg-[#FACC15] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_#0F172A] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all"
             >
-              <Lock className="w-3.5 h-3.5" />
+              <Lock className="w-4 h-4 text-slate-900" />
               <span>Portal Admin OPD</span>
             </button>
           </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="bg-gradient-to-b from-slate-100 to-[#F8FAFC] border-b-2 border-slate-900 py-12 md:py-16 px-4">
-        <div className="max-w-6xl mx-auto flex flex-col gap-8">
+      {/* 3. Hero Section: Rich, Colorful, High-Contrast & Professional */}
+      <section className="bg-brutal-grid border-b-2 border-slate-900 py-12 md:py-16 px-4 relative overflow-hidden">
+        {/* Subtle Decorative Colorful Accents in Background */}
+        <div className="absolute -top-12 -right-12 w-48 h-48 bg-[#FFE600]/30 rounded-full border-2 border-dashed border-slate-900 pointer-events-none" />
+        <div className="absolute -bottom-16 -left-16 w-56 h-56 bg-[#38BDF8]/20 rounded-full border-2 border-dashed border-slate-900 pointer-events-none" />
+
+        <div className="max-w-6xl mx-auto flex flex-col gap-8 relative z-10">
           <div className="max-w-3xl flex flex-col gap-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white border-2 border-slate-900 rounded font-bold text-xs text-slate-800 shadow-[2px_2px_0px_#0F172A] w-fit">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
-              <span>Portal Layanan Resmi Terintegrasi Wilayah Purbalingga</span>
+            {/* Colorful Badges Strip */}
+            <div className="flex flex-wrap items-center gap-2.5">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#38BDF8] text-slate-900 border-2 border-slate-900 rounded-md font-black text-xs shadow-[2.5px_2.5px_0px_#0F172A]">
+                <Sparkles className="w-3.5 h-3.5 text-slate-900" />
+                Resmi Pemkab Purbalingga
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#A7F3D0] text-emerald-950 border-2 border-slate-900 rounded-md font-extrabold text-xs shadow-[2.5px_2.5px_0px_#0F172A]">
+                ✓ Layanan Publik Terpadu
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#DDD6FE] text-purple-950 border-2 border-slate-900 rounded-md font-extrabold text-xs shadow-[2.5px_2.5px_0px_#0F172A]">
+                ⚡ 100% Bebas Antrean Loket
+              </span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-[1.15]">
-              Pelayanan Formulir & Survei Publik yang Cepat, Tepat, dan Terpercaya
+            {/* Main Headline */}
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-[1.16]">
+              Portal Layanan Formulir & Survei Publik{' '}
+              <span className="relative inline-block px-3 py-1 bg-[#FFE600] border-2 border-slate-900 rounded-xl shadow-[5px_5px_0px_#0F172A] rotate-[-1deg] text-slate-900">
+                Kabupaten Purbalingga
+              </span>
             </h1>
 
-            <p className="text-base sm:text-lg text-slate-700 leading-relaxed font-normal">
-              Akses formulir permohonan dinas, pendaftaran program bantuan, serta survei kepuasan masyarakat
-              di lingkungan Pemerintah Kabupaten Purbalingga secara daring tanpa perlu datang ke kantor dinas.
+            <p className="text-base sm:text-lg text-slate-700 leading-relaxed font-semibold">
+              Satu pintu digital untuk pendaftaran bantuan sosial, fasilitasi legalitas UMKM, permohonan adminduk,
+              hingga survei kepuasan masyarakat Organisasi Perangkat Daerah (OPD) se-Kabupaten Purbalingga
+              secara terpadu, cepat, dan transparan.
             </p>
-          </div>
 
-          {/* Quick Metrics Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="bg-white border-2 border-slate-900 rounded-lg p-4 shadow-[3px_3px_0px_#0F172A]">
-              <div className="flex items-center gap-2 text-slate-600 mb-1">
-                <MapPin className="w-4 h-4 text-emerald-700" />
-                <span className="text-xs font-bold">18 Kecamatan</span>
-              </div>
-              <p className="text-xs text-slate-600">Terhubung live API Sidami</p>
-            </div>
-
-            <div className="bg-white border-2 border-slate-900 rounded-lg p-4 shadow-[3px_3px_0px_#0F172A]">
-              <div className="flex items-center gap-2 text-slate-600 mb-1">
-                <Building2 className="w-4 h-4 text-emerald-700" />
-                <span className="text-xs font-bold">224 Desa/Kelurahan</span>
-              </div>
-              <p className="text-xs text-slate-600">Validasi bertingkat otomatis</p>
-            </div>
-
-            <div className="bg-white border-2 border-slate-900 rounded-lg p-4 shadow-[3px_3px_0px_#0F172A]">
-              <div className="flex items-center gap-2 text-slate-600 mb-1">
-                <Users className="w-4 h-4 text-emerald-700" />
-                <span className="text-xs font-bold">Multi-OPD Terpadu</span>
-              </div>
-              <p className="text-xs text-slate-600">Dinas, Badan & Kecamatan</p>
-            </div>
-
-            <div className="bg-white border-2 border-slate-900 rounded-lg p-4 shadow-[3px_3px_0px_#0F172A]">
-              <div className="flex items-center gap-2 text-slate-600 mb-1">
-                <CheckCircle2 className="w-4 h-4 text-emerald-700" />
-                <span className="text-xs font-bold">Tanda Terima Digital</span>
-              </div>
-              <p className="text-xs text-slate-600">Nomor registrasi unik & sah</p>
+            {/* Hero CTAs */}
+            <div className="flex flex-wrap items-center gap-3.5 pt-2">
+              <a
+                href="#daftar-form"
+                className="cursor-pointer inline-flex items-center gap-2 px-6 py-3.5 bg-[#059669] text-white font-black text-sm border-2 border-slate-900 rounded-xl shadow-[4px_4px_0px_#0F172A] hover:bg-[#047857] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#0F172A] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all"
+              >
+                <span>Lihat Formulir Aktif</span>
+                <ChevronRight className="w-4 h-4" />
+              </a>
+              <a
+                href="#cara-kerja"
+                className="cursor-pointer inline-flex items-center gap-2 px-5 py-3.5 bg-white text-slate-900 font-extrabold text-sm border-2 border-slate-900 rounded-xl shadow-[4px_4px_0px_#0F172A] hover:bg-slate-50 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_#0F172A] transition-all"
+              >
+                <HelpCircle className="w-4 h-4 text-slate-700" />
+                <span>Panduan 3 Langkah</span>
+              </a>
             </div>
           </div>
 
-          {/* Search & Filter Bar */}
-          <div id="daftar-form" className="bg-white border-2 border-slate-900 rounded-xl p-5 shadow-[4px_4px_0px_#0F172A] flex flex-col gap-4">
+          {/* 4 Pillars Colorful Cards Bento Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2">
+            {/* Card 1: Canary Sunglow */}
+            <div className="bg-white border-2 border-slate-900 rounded-xl p-4 shadow-[5px_5px_0px_#0F172A] flex flex-col justify-between gap-3 hover:translate-y-[-2px] transition-transform">
+              <div className="flex items-center justify-between">
+                <div className="w-10 h-10 bg-[#FFE600] border-2 border-slate-900 rounded-lg flex items-center justify-center shadow-[2px_2px_0px_#0F172A]">
+                  <FileText className="w-5 h-5 text-slate-900" />
+                </div>
+                <span className="text-[10px] font-black uppercase px-2 py-0.5 bg-amber-100 border border-slate-900 rounded">
+                  ONLINE
+                </span>
+              </div>
+              <div>
+                <span className="font-black text-xl text-slate-900 block leading-tight">100% Daring</span>
+                <span className="text-xs font-bold text-slate-600">Akses formulir kapan saja</span>
+              </div>
+            </div>
+
+            {/* Card 2: Fresh Mint */}
+            <div className="bg-white border-2 border-slate-900 rounded-xl p-4 shadow-[5px_5px_0px_#0F172A] flex flex-col justify-between gap-3 hover:translate-y-[-2px] transition-transform">
+              <div className="flex items-center justify-between">
+                <div className="w-10 h-10 bg-[#A7F3D0] border-2 border-slate-900 rounded-lg flex items-center justify-center shadow-[2px_2px_0px_#0F172A]">
+                  <CheckCircle2 className="w-5 h-5 text-slate-900" />
+                </div>
+                <span className="text-[10px] font-black uppercase px-2 py-0.5 bg-emerald-100 border border-slate-900 rounded">
+                  RESMI
+                </span>
+              </div>
+              <div>
+                <span className="font-black text-xl text-slate-900 block leading-tight">Terverifikasi</span>
+                <span className="text-xs font-bold text-slate-600">Terhubung langsung ke dinas</span>
+              </div>
+            </div>
+
+            {/* Card 3: Electric Sky */}
+            <div className="bg-white border-2 border-slate-900 rounded-xl p-4 shadow-[5px_5px_0px_#0F172A] flex flex-col justify-between gap-3 hover:translate-y-[-2px] transition-transform">
+              <div className="flex items-center justify-between">
+                <div className="w-10 h-10 bg-[#38BDF8] border-2 border-slate-900 rounded-lg flex items-center justify-center shadow-[2px_2px_0px_#0F172A]">
+                  <Users className="w-5 h-5 text-slate-900" />
+                </div>
+                <span className="text-[10px] font-black uppercase px-2 py-0.5 bg-sky-100 border border-slate-900 rounded">
+                  OPD
+                </span>
+              </div>
+              <div>
+                <span className="font-black text-xl text-slate-900 block leading-tight">Multi-Dinas</span>
+                <span className="text-xs font-bold text-slate-600">Dinkes, Dinsos, Diskominfo</span>
+              </div>
+            </div>
+
+            {/* Card 4: Royal Lavender */}
+            <div className="bg-white border-2 border-slate-900 rounded-xl p-4 shadow-[5px_5px_0px_#0F172A] flex flex-col justify-between gap-3 hover:translate-y-[-2px] transition-transform">
+              <div className="flex items-center justify-between">
+                <div className="w-10 h-10 bg-[#DDD6FE] border-2 border-slate-900 rounded-lg flex items-center justify-center shadow-[2px_2px_0px_#0F172A]">
+                  <QrCode className="w-5 h-5 text-slate-900" />
+                </div>
+                <span className="text-[10px] font-black uppercase px-2 py-0.5 bg-purple-100 border border-slate-900 rounded">
+                  BUKTI SAH
+                </span>
+              </div>
+              <div>
+                <span className="font-black text-xl text-slate-900 block leading-tight">Tanda Terima</span>
+                <span className="text-xs font-bold text-slate-600">Nomor registrasi unik NIK</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Interactive Search & Colorful Filter Panel */}
+          <div id="daftar-form" className="bg-white border-2 border-slate-900 rounded-2xl p-5 md:p-6 shadow-[6px_6px_0px_#0F172A] flex flex-col gap-4 mt-2">
             <div className="flex flex-col md:flex-row items-center gap-3">
               <div className="relative w-full flex-1">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />
+                <Search className="w-5 h-5 text-slate-500 absolute left-4 top-3.5 pointer-events-none" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Cari formulir, nama dinas, atau kata kunci layanan..."
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border-2 border-slate-900 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-700 placeholder:text-slate-400"
+                  placeholder="Cari permohonan, bantuan UMKM, bansos lansia, pelatihan BLK..."
+                  className="w-full pl-12 pr-4 py-3 bg-[#FFFDF5] border-2 border-slate-900 rounded-xl text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#059669] placeholder:text-slate-400 placeholder:font-medium shadow-[2px_2px_0px_#0F172A]"
                 />
               </div>
 
@@ -267,54 +381,65 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => setSearchQuery('')}
-                  className="cursor-pointer text-xs font-bold text-slate-600 hover:text-slate-900 px-3 py-2 border border-slate-300 rounded"
+                  className="cursor-pointer text-xs font-black bg-[#FECDD3] text-rose-950 px-4 py-3 border-2 border-slate-900 rounded-xl shadow-[3px_3px_0px_#0F172A] hover:bg-rose-200 transition-all whitespace-nowrap"
                 >
                   Reset Pencarian
                 </button>
               )}
             </div>
 
-            {/* Filter Pills */}
+            {/* Filter Pills with Distinct Color Coding */}
             <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1 no-scrollbar">
-              <Filter className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
-              {CATEGORIES.map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`cursor-pointer whitespace-nowrap text-xs font-bold px-3 py-1.5 rounded border-2 border-slate-900 transition-all ${
-                    selectedCategory === cat
-                      ? 'bg-[#065F46] text-white shadow-[2px_2px_0px_#0F172A]'
-                      : 'bg-white text-slate-700 hover:bg-slate-100'
-                  }`}
-                >
-                  {cat}
-                </button>
-              ))}
+              <div className="flex items-center gap-1.5 text-xs font-black text-slate-800 mr-1 flex-shrink-0">
+                <Filter className="w-3.5 h-3.5 text-slate-900" />
+                <span>Kategori:</span>
+              </div>
+              {CATEGORIES.map((cat) => {
+                const isActive = selectedCategory === cat.name;
+                return (
+                  <button
+                    key={cat.name}
+                    type="button"
+                    onClick={() => setSelectedCategory(cat.name)}
+                    className={`cursor-pointer whitespace-nowrap text-xs font-black px-4 py-2 rounded-xl border-2 border-slate-900 transition-all ${
+                      isActive
+                        ? `${cat.activeBg} shadow-[3px_3px_0px_#0F172A] translate-x-[-1px] translate-y-[-1px]`
+                        : 'bg-white text-slate-800 hover:bg-slate-100 shadow-[1.5px_1.5px_0px_#0F172A]'
+                    }`}
+                  >
+                    {cat.name}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Main Content: Directory Grid */}
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-10 w-full flex-1 flex flex-col gap-10">
-        <div className="flex items-center justify-between">
+      {/* 4. Form Directory Section */}
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-12 w-full flex-1 flex flex-col gap-10">
+        <div className="flex items-center justify-between border-b-2 border-slate-900 pb-3">
           <div>
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight">
-              Daftar Formulir Publik Aktif
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+              <span>Formulir Publik Tersedia</span>
+              <span className="text-xs font-black bg-[#FFE600] text-slate-900 px-3 py-1 border-2 border-slate-900 rounded-full shadow-[2px_2px_0px_#0F172A]">
+                {filteredForms.length} Formulir
+              </span>
             </h2>
-            <p className="text-xs font-medium text-slate-600 mt-0.5">
-              Menampilkan {filteredForms.length} formulir yang dapat diisi oleh masyarakat
+            <p className="text-xs sm:text-sm font-bold text-slate-600 mt-1">
+              Pilih formulir resmi untuk langsung mengisi data secara online dan mandiri
             </p>
           </div>
         </div>
 
         {filteredForms.length === 0 ? (
-          <div className="bg-white border-2 border-slate-900 rounded-lg p-10 text-center flex flex-col items-center gap-3 shadow-[3px_3px_0px_#0F172A]">
-            <HelpCircle className="w-10 h-10 text-slate-400" />
-            <h3 className="font-bold text-base text-slate-800">Tidak ada formulir yang cocok</h3>
-            <p className="text-xs text-slate-500 max-w-sm">
-              Coba sesuaikan kata kunci pencarian atau pilih kategori lain pada filter di atas.
+          <div className="bg-white border-2 border-slate-900 rounded-2xl p-12 text-center flex flex-col items-center gap-3 shadow-[6px_6px_0px_#0F172A]">
+            <div className="w-14 h-14 bg-[#FED7AA] border-2 border-slate-900 rounded-2xl flex items-center justify-center shadow-[3px_3px_0px_#0F172A]">
+              <HelpCircle className="w-7 h-7 text-slate-900" />
+            </div>
+            <h3 className="font-black text-lg text-slate-900">Formulir Tidak Ditemukan</h3>
+            <p className="text-xs sm:text-sm font-semibold text-slate-600 max-w-sm">
+              Tidak ada hasil untuk pencarian &quot;{searchQuery}&quot; pada kategori &quot;{selectedCategory}&quot;.
             </p>
             <button
               type="button"
@@ -322,9 +447,9 @@ export default function HomePage() {
                 setSearchQuery('');
                 setSelectedCategory('Semua Kategori');
               }}
-              className="cursor-pointer text-xs font-bold text-emerald-800 underline mt-2"
+              className="cursor-pointer text-xs font-black px-5 py-2.5 bg-[#FFE600] text-slate-900 border-2 border-slate-900 rounded-xl shadow-[3px_3px_0px_#0F172A] hover:translate-x-[1px] hover:translate-y-[1px] transition-all mt-2"
             >
-              Tampilkan Semua Formulir
+              Tampilkan Seluruh Formulir
             </button>
           </div>
         ) : (
@@ -332,138 +457,224 @@ export default function HomePage() {
             {filteredForms.map((item) => (
               <div
                 key={item.id}
-                className="bg-white border-2 border-slate-900 rounded-lg p-5 shadow-[4px_4px_0px_#0F172A] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_#0F172A] transition-all flex flex-col justify-between gap-4"
+                className="bg-white border-2 border-slate-900 rounded-2xl shadow-[5px_5px_0px_#0F172A] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0px_#0F172A] transition-all flex flex-col justify-between overflow-hidden group"
               >
-                <div className="flex flex-col gap-3">
-                  {/* Category & Status Badge */}
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-[11px] font-bold px-2 py-0.5 bg-slate-100 text-slate-800 border border-slate-300 rounded">
-                      {item.category}
-                    </span>
-                    {item.requiresNik ? (
-                      <span className="text-[10px] font-bold px-2 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-300 rounded">
-                        Wajib NIK
+                {/* Colorful Top Accent Strip */}
+                <div className={`h-3.5 w-full border-b-2 border-slate-900 ${item.colorTheme.banner}`} />
+
+                <div className="p-5 flex flex-col gap-4 flex-1 justify-between">
+                  <div className="flex flex-col gap-3">
+                    {/* Badge Row */}
+                    <div className="flex items-center justify-between gap-2">
+                      <span className={`text-[11px] font-black px-2.5 py-0.5 rounded-md border-2 border-slate-900 shadow-[1.5px_1.5px_0px_#0F172A] ${item.colorTheme.badge}`}>
+                        {item.category}
                       </span>
-                    ) : (
-                      <span className="text-[10px] font-bold px-2 py-0.5 bg-sky-50 text-sky-800 border border-sky-300 rounded">
-                        Terbuka Umum
-                      </span>
-                    )}
+                      {item.requiresNik ? (
+                        <span className="text-[10px] font-black px-2 py-0.5 bg-[#DCFCE7] text-emerald-950 border border-slate-900 rounded-md shadow-[1px_1px_0px_#0F172A]">
+                          Wajib NIK
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-black px-2 py-0.5 bg-[#E0F2FE] text-sky-950 border border-slate-900 rounded-md shadow-[1px_1px_0px_#0F172A]">
+                          Publik
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Title */}
+                    <h3 className="font-black text-base text-slate-900 leading-snug line-clamp-2 group-hover:text-[#059669] transition-colors">
+                      {item.title}
+                    </h3>
+
+                    {/* Description */}
+                    <p className="text-xs font-semibold text-slate-600 line-clamp-3 leading-relaxed">
+                      {item.description}
+                    </p>
                   </div>
 
-                  {/* Title */}
-                  <h3 className="font-extrabold text-base text-slate-900 leading-snug line-clamp-2">
-                    {item.title}
-                  </h3>
-
-                  {/* Description */}
-                  <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed">
-                    {item.description}
-                  </p>
-
-                  {/* OPD Meta */}
-                  <div className="pt-2 border-t border-slate-200 flex flex-col gap-1.5 text-xs text-slate-600">
-                    <div className="flex items-center gap-1.5 font-semibold text-slate-800">
+                  {/* Meta OPD & Deadline */}
+                  <div className="pt-3 border-t-2 border-slate-100 flex flex-col gap-2.5">
+                    <div className="flex items-center gap-1.5 text-xs font-black text-slate-800">
                       <Building2 className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
                       <span className="truncate">{item.opd}</span>
                     </div>
-                    <div className="flex items-center justify-between text-[11px] text-slate-500">
+                    <div className="flex items-center justify-between text-[11px] font-bold text-slate-500">
                       <span className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
+                        <Clock className="w-3.5 h-3.5 text-slate-400" />
                         Batas: {item.deadline}
                       </span>
-                      <span>{item.totalResponses} Respon</span>
+                      <span className="text-slate-900 font-extrabold bg-slate-100 px-2 py-0.5 rounded border border-slate-300">
+                        {item.totalResponses} Respon
+                      </span>
                     </div>
+
+                    {/* Action Button */}
+                    <button
+                      type="button"
+                      className={`cursor-pointer w-full mt-2 py-2.5 px-4 text-xs font-black rounded-xl border-2 border-slate-900 shadow-[3px_3px_0px_#0F172A] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all flex items-center justify-center gap-2 ${item.colorTheme.btnColor}`}
+                    >
+                      <span>Buka & Isi Formulir</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 </div>
-
-                {/* Action Button */}
-                <button
-                  type="button"
-                  className="cursor-pointer w-full py-2.5 px-4 bg-[#065F46] text-white text-xs font-bold rounded border-2 border-slate-900 shadow-[2px_2px_0px_#0F172A] hover:bg-[#047857] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none active:translate-x-[2px] active:translate-y-[2px] transition-all flex items-center justify-center gap-2"
-                >
-                  <span>Buka & Isi Formulir</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
               </div>
             ))}
           </div>
         )}
 
-        {/* How It Works Guide */}
-        <section className="bg-white border-2 border-slate-900 rounded-xl p-8 shadow-[4px_4px_0px_#0F172A] mt-6">
-          <div className="mb-6">
-            <h2 className="text-xl font-black text-slate-900">
-              Alur Mudah Pengisian Formulir Digital
-            </h2>
-            <p className="text-xs text-slate-600 mt-1">
-              Tiga langkah praktis untuk menyelesaikan pengisian permohonan atau survei
-            </p>
+        {/* 5. Bento Grid: Program Unggulan Daerah */}
+        <section className="mt-6 flex flex-col gap-6">
+          <div className="border-b-2 border-slate-900 pb-2 flex items-center justify-between">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900">
+                Layanan Unggulan Purbalingga
+              </h2>
+              <p className="text-xs font-bold text-slate-600 mt-0.5">
+                Program prioritas pemerintah daerah untuk kesejahteraan masyarakat
+              </p>
+            </div>
+            <span className="text-xs font-black bg-[#FFE600] px-2.5 py-1 rounded border-2 border-slate-900 shadow-[2px_2px_0px_#0F172A] hidden sm:inline-block">
+              PRIORITAS DAERAH
+            </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="flex flex-col gap-2 p-4 bg-slate-50 border border-slate-300 rounded-lg">
-              <div className="w-7 h-7 bg-[#065F46] text-white font-black text-xs rounded flex items-center justify-center">
-                1
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-[#FEFCE8] border-2 border-slate-900 rounded-2xl p-5 shadow-[5px_5px_0px_#0F172A] flex flex-col gap-3 hover:translate-y-[-2px] transition-transform">
+              <div className="w-10 h-10 bg-[#FFE600] border-2 border-slate-900 rounded-xl flex items-center justify-center shadow-[2px_2px_0px_#0F172A]">
+                <HeartHandshake className="w-5 h-5 text-slate-900" />
               </div>
-              <h4 className="font-bold text-sm text-slate-900">Pilih Formulir Layanan</h4>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Temukan formulir yang sesuai dengan kebutuhan Anda melalui pencarian atau kategori dinas terkait.
+              <h4 className="font-black text-sm text-slate-900">Bantuan Sosial & UMKM</h4>
+              <p className="text-xs font-semibold text-slate-700 leading-relaxed">
+                Pendaftaran bantuan modal usaha mikro, fasilitasi NIB legal, dan jaminan bansos lansia terpadu.
               </p>
             </div>
 
-            <div className="flex flex-col gap-2 p-4 bg-slate-50 border border-slate-300 rounded-lg">
-              <div className="w-7 h-7 bg-[#065F46] text-white font-black text-xs rounded flex items-center justify-center">
-                2
+            <div className="bg-[#F0F9FF] border-2 border-slate-900 rounded-2xl p-5 shadow-[5px_5px_0px_#0F172A] flex flex-col gap-3 hover:translate-y-[-2px] transition-transform">
+              <div className="w-10 h-10 bg-[#38BDF8] border-2 border-slate-900 rounded-xl flex items-center justify-center shadow-[2px_2px_0px_#0F172A]">
+                <FileCheck className="w-5 h-5 text-slate-900" />
               </div>
-              <h4 className="font-bold text-sm text-slate-900">Lengkapi Data & Wilayah</h4>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Isi data pertanyaan, pilih Kecamatan dan Desa di Purbalingga secara bertingkat, serta lampirkan berkas jika diminta.
+              <h4 className="font-black text-sm text-slate-900">Adminduk Cepat Daring</h4>
+              <p className="text-xs font-semibold text-slate-700 leading-relaxed">
+                Permohonan surat pengantar, pembaharuan Kartu Keluarga, dan kutipan akta kelahiran tanpa antrean.
               </p>
             </div>
 
-            <div className="flex flex-col gap-2 p-4 bg-slate-50 border border-slate-300 rounded-lg">
-              <div className="w-7 h-7 bg-[#065F46] text-white font-black text-xs rounded flex items-center justify-center">
-                3
+            <div className="bg-[#F0FDF4] border-2 border-slate-900 rounded-2xl p-5 shadow-[5px_5px_0px_#0F172A] flex flex-col gap-3 hover:translate-y-[-2px] transition-transform">
+              <div className="w-10 h-10 bg-[#34D399] border-2 border-slate-900 rounded-xl flex items-center justify-center shadow-[2px_2px_0px_#0F172A]">
+                <Activity className="w-5 h-5 text-slate-900" />
               </div>
-              <h4 className="font-bold text-sm text-slate-900">Terima Bukti Registrasi</h4>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Setelah berhasil dikirim, Anda mendapatkan kode tanda terima digital untuk keperluan verifikasi dan arsip pribadi.
+              <h4 className="font-black text-sm text-slate-900">Kesehatan & Gizi Anak</h4>
+              <p className="text-xs font-semibold text-slate-700 leading-relaxed">
+                Pemantauan balita stunting, survei mutu pelayanan rawat jalan puskesmas, dan jaminan kesehatan daerah.
+              </p>
+            </div>
+
+            <div className="bg-[#FAF5FF] border-2 border-slate-900 rounded-2xl p-5 shadow-[5px_5px_0px_#0F172A] flex flex-col gap-3 hover:translate-y-[-2px] transition-transform">
+              <div className="w-10 h-10 bg-[#A855F7] border-2 border-slate-900 rounded-xl flex items-center justify-center shadow-[2px_2px_0px_#0F172A]">
+                <GraduationCap className="w-5 h-5 text-white" />
+              </div>
+              <h4 className="font-black text-sm text-slate-900">Pelatihan BLK & Vokasi</h4>
+              <p className="text-xs font-semibold text-slate-700 leading-relaxed">
+                Pelatihan kerja otomotif, garmen, dan teknologi informasi gratis bersertifikasi kompetensi BNSP.
               </p>
             </div>
           </div>
         </section>
+
+        {/* 6. Panduan 3 Langkah Pengisian Formulir */}
+        <section id="cara-kerja" className="bg-white border-2 border-slate-900 rounded-2xl p-8 shadow-[6px_6px_0px_#0F172A]">
+          <div className="mb-6 flex flex-col gap-1">
+            <span className="text-[11px] font-black uppercase text-[#059669] tracking-wider">
+              PANDUAN WARGA
+            </span>
+            <h2 className="text-2xl font-black text-slate-900">
+              Alur Pengisian Formulir Digital
+            </h2>
+            <p className="text-xs sm:text-sm font-bold text-slate-600">
+              Proses ringkas, transparan, dan terverifikasi dalam 3 tahapan mudah
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="p-5 bg-[#FEFCE8] border-2 border-slate-900 rounded-2xl shadow-[4px_4px_0px_#0F172A] flex flex-col gap-3">
+              <div className="w-10 h-10 bg-[#FFE600] text-slate-900 font-black text-base border-2 border-slate-900 rounded-xl flex items-center justify-center shadow-[2px_2px_0px_#0F172A]">
+                01
+              </div>
+              <h4 className="font-black text-base text-slate-900">Pilih Formulir Layanan</h4>
+              <p className="text-xs font-semibold text-slate-700 leading-relaxed">
+                Temukan formulir yang Anda butuhkan melalui kolom pencarian atau filter kategori OPD penyelenggara program.
+              </p>
+            </div>
+
+            <div className="p-5 bg-[#F0FDF4] border-2 border-slate-900 rounded-2xl shadow-[4px_4px_0px_#0F172A] flex flex-col gap-3">
+              <div className="w-10 h-10 bg-[#34D399] text-slate-900 font-black text-base border-2 border-slate-900 rounded-xl flex items-center justify-center shadow-[2px_2px_0px_#0F172A]">
+                02
+              </div>
+              <h4 className="font-black text-base text-slate-900">Lengkapi Formulir</h4>
+              <p className="text-xs font-semibold text-slate-700 leading-relaxed">
+                Isi seluruh pertanyaan formulir dengan teliti dan lampirkan berkas dokumen bila disyaratkan.
+              </p>
+            </div>
+
+            <div className="p-5 bg-[#FAF5FF] border-2 border-slate-900 rounded-2xl shadow-[4px_4px_0px_#0F172A] flex flex-col gap-3">
+              <div className="w-10 h-10 bg-[#A855F7] text-white font-black text-base border-2 border-slate-900 rounded-xl flex items-center justify-center shadow-[2px_2px_0px_#0F172A]">
+                03
+              </div>
+              <h4 className="font-black text-base text-slate-900">Terima Bukti Registrasi</h4>
+              <p className="text-xs font-semibold text-slate-700 leading-relaxed">
+                Selesai kirim! Anda langsung mendapatkan nomor tanda terima digital yang sah untuk arsip dan verifikasi dinas terkait.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* 7. Civic Trust & UU PDP Security Banner */}
+        <section className="bg-[#FFE4E6] border-2 border-slate-900 rounded-2xl p-6 shadow-[5px_5px_0px_#0F172A] flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-[#F43F5E] text-white border-2 border-slate-900 rounded-xl flex items-center justify-center shadow-[3px_3px_0px_#0F172A] flex-shrink-0">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <div>
+              <h4 className="font-black text-sm sm:text-base text-slate-900">
+                Keamanan & Perlindungan Data Pribadi Terjamin
+              </h4>
+              <p className="text-xs font-semibold text-rose-950 mt-0.5">
+                Sistem E-Form mematuhi standar UU No. 27 Tahun 2022 (UU PDP). NIK dan data pemohon dienkripsi aman untuk keperluan verifikasi dinas.
+              </p>
+            </div>
+          </div>
+          <span className="text-[11px] font-black bg-white text-slate-900 px-3 py-1.5 border-2 border-slate-900 rounded-xl shadow-[2px_2px_0px_#0F172A] whitespace-nowrap">
+            UU PDP COMPLIANT
+          </span>
+        </section>
       </main>
 
-      {/* Official Footer */}
-      <footer className="bg-white border-t-2 border-slate-900 py-8 px-4 sm:px-6 mt-16">
+      {/* 8. Official Civic Footer */}
+      <footer className="bg-white border-t-2 border-slate-900 py-10 px-4 sm:px-6 mt-16">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-[#065F46] text-white font-black text-sm border-2 border-slate-900 rounded flex items-center justify-center shadow-[2px_2px_0px_#0F172A]">
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 bg-[#059669] text-white font-black text-lg border-2 border-slate-900 rounded-xl flex items-center justify-center shadow-[3px_3px_0px_#0F172A]">
               PBG
             </div>
             <div>
-              <p className="text-xs font-extrabold text-slate-900">
+              <p className="text-sm font-black text-slate-900">
                 Pemerintah Kabupaten Purbalingga
               </p>
-              <p className="text-[11px] text-slate-500">
-                Dinas Komunikasi dan Informatika • Gedung Graha Adiguna Lt. 2
+              <p className="text-xs font-bold text-slate-600">
+                Dinas Komunikasi dan Informatika • Gedung Graha Adiguna Lt. 2, Jl. Onje No. 1B
               </p>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-6 text-xs font-semibold text-slate-600">
-            <a href="#daftar-form" className="cursor-pointer hover:text-slate-900">
-              Direktori Form
+          <div className="flex flex-wrap items-center gap-6 text-xs font-black text-slate-800">
+            <a href="#daftar-form" className="cursor-pointer hover:text-emerald-700 transition-colors">
+              Direktori Formulir
             </a>
-            <a href="#" className="cursor-pointer hover:text-slate-900">
-              Kebijakan Privasi
-            </a>
-            <a href="#" className="cursor-pointer hover:text-slate-900">
-              Bantuan & Panduan
+            <a href="#cara-kerja" className="cursor-pointer hover:text-emerald-700 transition-colors">
+              Panduan Pengisian
             </a>
             <span className="text-slate-300">|</span>
-            <span className="text-slate-500 font-normal">
+            <span className="text-slate-500 font-bold">
               © 2026 Hak Cipta Dilindungi Undang-Undang
             </span>
           </div>

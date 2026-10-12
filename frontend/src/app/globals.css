@@ -4,14 +4,14 @@
 
 :root {
   --foreground-rgb: 15, 23, 42;
-  --background-start-rgb: 248, 250, 252;
-  --background-end-rgb: 248, 250, 252;
+  --background-start-rgb: 255, 253, 245;
+  --background-end-rgb: 255, 253, 245;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: #F8FAFC;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: #FFFDF5;
+  font-family: -apple-system, BlinkMacSystemFont, "Plus Jakarta Sans", "Outfit", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 /* ==============================================================================
@@ -32,26 +32,73 @@ summary,
 }
 
 /* ==============================================================================
-   PROFESSIONAL NEOBRUTALISM REUSABLE UTILITIES
+   COLORFUL & PROFESSIONAL NEOBRUTALISM UTILITIES
    ============================================================================== */
 @layer components {
-  .btn-brutal-primary {
-    @apply cursor-pointer inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#065F46] text-white font-bold text-sm border-2 border-[#0F172A] rounded shadow-[3px_3px_0px_#0F172A] hover:bg-[#047857] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_#0F172A] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all;
+  /* Colorful Brutalist Button System */
+  .btn-brutal-yellow {
+    @apply cursor-pointer inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#FFE600] text-slate-900 font-black text-sm border-2 border-slate-900 rounded-lg shadow-[3px_3px_0px_#0F172A] hover:bg-[#FACC15] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_#0F172A] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all;
   }
 
-  .btn-brutal-secondary {
-    @apply cursor-pointer inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-[#0F172A] font-bold text-sm border-2 border-[#0F172A] rounded shadow-[3px_3px_0px_#0F172A] hover:bg-slate-50 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_#0F172A] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all;
+  .btn-brutal-emerald {
+    @apply cursor-pointer inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#059669] text-white font-black text-sm border-2 border-slate-900 rounded-lg shadow-[3px_3px_0px_#0F172A] hover:bg-[#047857] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_#0F172A] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all;
   }
 
+  .btn-brutal-sky {
+    @apply cursor-pointer inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#38BDF8] text-slate-900 font-black text-sm border-2 border-slate-900 rounded-lg shadow-[3px_3px_0px_#0F172A] hover:bg-[#0EA5E9] hover:text-white hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_#0F172A] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all;
+  }
+
+  .btn-brutal-purple {
+    @apply cursor-pointer inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#A855F7] text-white font-black text-sm border-2 border-slate-900 rounded-lg shadow-[3px_3px_0px_#0F172A] hover:bg-[#9333EA] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_#0F172A] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all;
+  }
+
+  .btn-brutal-coral {
+    @apply cursor-pointer inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#F43F5E] text-white font-black text-sm border-2 border-slate-900 rounded-lg shadow-[3px_3px_0px_#0F172A] hover:bg-[#E11D48] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_#0F172A] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all;
+  }
+
+  .btn-brutal-white {
+    @apply cursor-pointer inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-slate-900 font-bold text-sm border-2 border-slate-900 rounded-lg shadow-[3px_3px_0px_#0F172A] hover:bg-slate-50 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_#0F172A] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all;
+  }
+
+  /* Brutalist Cards */
   .card-brutal {
-    @apply bg-white border-2 border-[#0F172A] rounded-lg shadow-[4px_4px_0px_#0F172A] p-6;
+    @apply bg-white border-2 border-slate-900 rounded-xl shadow-[4px_4px_0px_#0F172A] p-6;
   }
 
+  .card-brutal-yellow {
+    @apply bg-[#FEFCE8] border-2 border-slate-900 rounded-xl shadow-[4px_4px_0px_#0F172A] p-6;
+  }
+
+  .card-brutal-mint {
+    @apply bg-[#F0FDF4] border-2 border-slate-900 rounded-xl shadow-[4px_4px_0px_#0F172A] p-6;
+  }
+
+  .card-brutal-sky {
+    @apply bg-[#F0F9FF] border-2 border-slate-900 rounded-xl shadow-[4px_4px_0px_#0F172A] p-6;
+  }
+
+  .card-brutal-purple {
+    @apply bg-[#FAF5FF] border-2 border-slate-900 rounded-xl shadow-[4px_4px_0px_#0F172A] p-6;
+  }
+
+  .card-brutal-peach {
+    @apply bg-[#FFF7ED] border-2 border-slate-900 rounded-xl shadow-[4px_4px_0px_#0F172A] p-6;
+  }
+
+  /* Form Elements */
   .input-brutal {
-    @apply w-full px-4 py-2.5 bg-white text-[#0F172A] text-sm font-medium border-2 border-[#0F172A] rounded shadow-[2px_2px_0px_#0F172A] focus:outline-none focus:ring-2 focus:ring-[#065F46] transition-all placeholder:text-slate-400;
+    @apply w-full px-4 py-2.5 bg-white text-slate-900 text-sm font-semibold border-2 border-slate-900 rounded-lg shadow-[2px_2px_0px_#0F172A] focus:outline-none focus:ring-2 focus:ring-[#059669] transition-all placeholder:text-slate-400 placeholder:font-normal;
   }
 
   .badge-brutal {
-    @apply inline-flex items-center gap-1.5 px-2.5 py-1 font-bold text-xs uppercase border-2 border-[#0F172A] rounded shadow-[2px_2px_0px_#0F172A];
+    @apply inline-flex items-center gap-1.5 px-3 py-1 font-black text-xs border-2 border-slate-900 rounded-md shadow-[2px_2px_0px_#0F172A];
   }
 }
+
+/* Subtle Retro Paper Texture with SVG Dots */
+.bg-brutal-grid {
+  background-size: 24px 24px;
+  background-image: 
+    radial-gradient(circle, #CBD5E1 1px, transparent 1px);
+}
+
