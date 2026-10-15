@@ -1,4 +1,4 @@
-.PHONY: help up down build restart logs logs-backend logs-frontend db-shell clean
+.PHONY: help up down build restart logs logs-backend logs-frontend db-shell clean test test-backend test-frontend test-e2e
 
 help: ## Tampilkan daftar perintah Makefile
 	@echo "======================================================================"
@@ -32,3 +32,16 @@ db-shell: ## Masuk ke interactive psql shell di database PostgreSQL
 
 clean: ## Hentikan container dan bersihkan seluruh volume data Docker
 	docker compose down -v
+
+test: ## Jalankan seluruh unit test (backend + frontend)
+	$(MAKE) test-backend
+	$(MAKE) test-frontend
+
+test-backend: ## Jalankan unit test backend Go
+	cd backend && go test ./...
+
+test-frontend: ## Jalankan unit test frontend (Jest + RTL)
+	cd frontend && npm test
+
+test-e2e: ## Jalankan uji E2E login & RBAC terhadap stack yang sedang hidup
+	./test-login.sh

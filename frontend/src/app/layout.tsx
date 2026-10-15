@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { Providers } from './providers';
 
 export const metadata: Metadata = {
   title: 'E-Form Kabupaten Purbalingga | Formulir Digital Terpadu',
@@ -14,7 +15,7 @@ export default function RootLayout({
   return (
     <html lang="id">
       <body className="min-h-screen bg-[#FFFDF5] text-[#0F172A] antialiased selection:bg-[#FFE600] selection:text-slate-900">
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

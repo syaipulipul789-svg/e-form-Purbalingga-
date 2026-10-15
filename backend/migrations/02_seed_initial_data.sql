@@ -10,11 +10,11 @@ INSERT INTO opd (id, kode_opd, nama_opd, singkatan) VALUES
 ON CONFLICT (kode_opd) DO NOTHING;
 
 -- 2. Master Pengguna Default (Password Default: Purbalingga2026!)
--- Hash Bcrypt untuk 'Purbalingga2026!': $2a$10$7v1bS.vW4U..d4QxMqmHse6P7j3e5hZpYwR9U1T5V3eN6Q7Y8Z9a0
+-- Hash Bcrypt untuk 'Purbalingga2026!': $2a$10$YY6Gm4bqU0BIKyBLgkMPoutyjZdaSVXDeeXGMS4nzZfxMcfvqRt3e
 INSERT INTO users (id, opd_id, nama, email, password_hash, role) VALUES
-('c1f8a847-1111-4f8e-bf82-7235a90e3952', 'e8d7a12b-1111-4c78-90ab-cdef12345678', 'Super Admin Diskominfo', 'superadmin@purbalinggakab.go.id', '$2a$10$7v1bS.vW4U..d4QxMqmHse6P7j3e5hZpYwR9U1T5V3eN6Q7Y8Z9a0', 'SUPER_ADMIN'),
-('c1f8a847-2222-4f8e-bf82-7235a90e3952', 'e8d7a12b-2222-4c78-90ab-cdef12345678', 'Admin Dinas Kesehatan', 'admin.dinkes@purbalinggakab.go.id', '$2a$10$7v1bS.vW4U..d4QxMqmHse6P7j3e5hZpYwR9U1T5V3eN6Q7Y8Z9a0', 'ADMIN_OPD'),
-('c1f8a847-3333-4f8e-bf82-7235a90e3952', 'e8d7a12b-3333-4c78-90ab-cdef12345678', 'Admin Dinas Sosial', 'admin.dinsos@purbalinggakab.go.id', '$2a$10$7v1bS.vW4U..d4QxMqmHse6P7j3e5hZpYwR9U1T5V3eN6Q7Y8Z9a0', 'ADMIN_OPD')
+('c1f8a847-1111-4f8e-bf82-7235a90e3952', 'e8d7a12b-1111-4c78-90ab-cdef12345678', 'Super Admin Diskominfo', 'superadmin@purbalinggakab.go.id', '$2a$10$YY6Gm4bqU0BIKyBLgkMPoutyjZdaSVXDeeXGMS4nzZfxMcfvqRt3e', 'SUPER_ADMIN'),
+('c1f8a847-2222-4f8e-bf82-7235a90e3952', 'e8d7a12b-2222-4c78-90ab-cdef12345678', 'Admin Dinas Kesehatan', 'admin.dinkes@purbalinggakab.go.id', '$2a$10$YY6Gm4bqU0BIKyBLgkMPoutyjZdaSVXDeeXGMS4nzZfxMcfvqRt3e', 'ADMIN_OPD'),
+('c1f8a847-3333-4f8e-bf82-7235a90e3952', 'e8d7a12b-3333-4c78-90ab-cdef12345678', 'Admin Dinas Sosial', 'admin.dinsos@purbalinggakab.go.id', '$2a$10$YY6Gm4bqU0BIKyBLgkMPoutyjZdaSVXDeeXGMS4nzZfxMcfvqRt3e', 'ADMIN_OPD')
 ON CONFLICT (email) DO NOTHING;
 
 -- 3. Contoh Formulir Aktif (Pendaftaran Bantuan Usaha Mikro Purbalingga)

@@ -1,0 +1,104 @@
+package domain
+
+import (
+	"encoding/json"
+	"time"
+
+	"github.com/google/uuid"
+)
+
+// LoginRequest adalah payload login admin OPD / super admin.
+type LoginRequest struct {
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required,min=6"`
+}
+
+// OPDSummary adalah ringkasan OPD yang disematkan pada profil pengguna.
+type OPDSummary struct {
+	ID        uuid.UUID `json:"id"`
+	KodeOPD   string    `json:"kode_opd"`
+	NamaOPD   string    `json:"nama_opd"`
+	Singkatan *string   `json:"singkatan"`
+	LogoURL   *string   `json:"logo_url"`
+}
+
+// AuthUser adalah data pengguna yang dikembalikan pada respon autentikasi.
+type AuthUser struct {
+	ID    uuid.UUID   `json:"id"`
+	Nama  string      `json:"nama"`
+	Email string      `json:"email"`
+	Role  string      `json:"role"`
+	OPD   *OPDSummary `json:"opd"`
+}
+
+// LoginResponse adalah respon sukses endpoint login.
+type LoginResponse struct {
+	Token     string   `json:"token"`
+	ExpiresIn int      `json:"expires_in"`
+	User      AuthUser `json:"user"`
+}
+
+// FormListQuery adalah parameter filter & paginasi daftar formulir.
+type FormListQuery struct {
+	Page   int
+	Limit  int
+	Status string
+	Search string
+}
+
+// FormSummary adalah ringkasan formulir untuk endpoint daftar.
+type FormSummary struct {
+	ID             uuid.UUID  `json:"id"`
+	Slug           string     `json:"slug"`
+	Title          string     `json:"title"`
+	Description    *string    `json:"description"`
+	Status         string     `json:"status"`
+	TotalResponses int        `json:"total_responses"`
+	StartDate      *time.Time `json:"start_date"`
+	EndDate        *time.Time `json:"end_date"`
+	CreatedAt      time.Time  `json:"created_at"`
+	UpdatedAt      time.Time  `json:"updated_at"`
+}
+
+// FormDetail adalah representasi lengkap formulir untuk pengelolaan admin.
+type FormDetail struct {
+	FormSummary
+	BannerURL *string         `json:"banner_url"`
+	Schema    json.RawMessage `json:"schema"`
+	Settings  json.RawMessage `json:"settings"`
+}
+
+// FormListResponse adalah respon terpaginasi daftar formulir.
+type FormListResponse struct {
+	Items []FormSummary `json:"items"`
+	Page  int           `json:"page"`
+	Limit int           `json:"limit"`
+	Total int           `json:"total"`
+}
+
+// CreateFormRequest adalah payload pembuatan formulir baru.
+type CreateFormRequest struct {
+	Title       string          `json:"title" binding:"required"`
+	Slug        string          `json:"slug"`
+	Description *string         `json:"description"`
+	BannerURL   *string         `json:"banner_url"`
+	Status      string          `json:"status"`
+	Schema      json.RawMessage `json:"schema"`
+	Settings    json.RawMessage `json:"settings"`
+}
+
+// UpdateFormRequest adalah payload pembaruan formulir (parsial).
+type UpdateFormRequest struct {
+	Title       *string         `json:"title"`
+	Slug        *string         `json:"slug"`
+	Description *string         `json:"description"`
+	BannerURL   *string         `json:"banner_url"`
+	Status      *string         `json:"status"`
+	Schema      json.RawMessage `json:"schema"`
+	Settings    json.RawMessage `json:"settings"`
+}
+
+// UpdateStatusRequest adalah payload perubahan status formulir.
+type UpdateStatusRequest struct {
+	Status string `json:"status" binding:"required"`
+}

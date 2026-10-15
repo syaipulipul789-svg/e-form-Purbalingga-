@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import Link from 'next/link';
 import {
   FileText,
   Search,
@@ -230,13 +231,13 @@ export default function HomePage() {
               <FileText className="w-4 h-4 text-emerald-700" />
               <span>Katalog Formulir</span>
             </a>
-            <button
-              type="button"
+            <Link
+              href="/login"
               className="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 bg-[#FFE600] text-slate-900 font-black text-xs border-2 border-slate-900 rounded-lg shadow-[4px_4px_0px_#0F172A] hover:bg-[#FACC15] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_#0F172A] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all"
             >
               <Lock className="w-4 h-4 text-slate-900" />
               <span>Portal Admin OPD</span>
-            </button>
+            </Link>
           </div>
         </div>
       </header>

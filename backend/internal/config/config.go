@@ -13,12 +13,18 @@ type Config struct {
 	UploadDir       string
 	MaxUploadSizeMB int
 	SidamiAPIBase   string
+	JWTExpiryHours  int
 }
 
 func LoadConfig() *Config {
 	maxUploadMB, err := strconv.Atoi(getEnv("MAX_UPLOAD_SIZE_MB", "10"))
 	if err != nil {
 		maxUploadMB = 10
+	}
+
+	jwtExpiryHours, err := strconv.Atoi(getEnv("JWT_EXPIRY_HOURS", "24"))
+	if err != nil || jwtExpiryHours <= 0 {
+		jwtExpiryHours = 24
 	}
 
 	return &Config{
@@ -29,6 +35,7 @@ func LoadConfig() *Config {
 		UploadDir:       getEnv("UPLOAD_DIR", "/app/storage/uploads"),
 		MaxUploadSizeMB: maxUploadMB,
 		SidamiAPIBase:   getEnv("SIDAMI_API_BASE", "https://api.sidami.purbalinggakab.go.id/api"),
+		JWTExpiryHours:  jwtExpiryHours,
 	}
 }
 

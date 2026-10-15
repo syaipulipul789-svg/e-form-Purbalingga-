@@ -15,6 +15,8 @@ import (
 	"github.com/purbalinggakab/e-form-purbalingga/internal/config"
 	"github.com/purbalinggakab/e-form-purbalingga/internal/database"
 	"github.com/purbalinggakab/e-form-purbalingga/internal/handler"
+	"github.com/purbalinggakab/e-form-purbalingga/internal/middleware"
+	"github.com/purbalinggakab/e-form-purbalingga/internal/repository"
 	"github.com/purbalinggakab/e-form-purbalingga/internal/service"
 )
 
@@ -31,9 +33,18 @@ func main() {
 	}
 	defer db.Close()
 
-	// 3. Inisialisasi Service dan Handler (Wilayah langsung memanggil API Sidami)
+	// 3. Inisialisasi Repository, Service dan Handler
 	wilayahSvc := service.NewWilayahService(cfg.SidamiAPIBase)
 	wilayahHdl := handler.NewWilayahHandler(wilayahSvc)
+
+	userRepo := repository.NewUserRepository(db)
+	opdRepo := repository.NewOPDRepository(db)
+	authSvc := service.NewAuthService(userRepo, opdRepo, cfg.AppSecret, cfg.JWTExpiryHours)
+	authHdl := handler.NewAuthHandler(authSvc)
+
+	formRepo := repository.NewFormRepository(db)
+	formSvc := service.NewFormService(formRepo)
+	formHdl := handler.NewFormHandler(formSvc)
 
 	// 4. Setup Gin Router
 	if cfg.AppEnv == "production" {
@@ -68,11 +79,41 @@ func main() {
 	// 8. Register API v1 Group
 	apiV1 := router.Group("/api/v1")
 	{
+		// Autentikasi & Akun Admin OPD
+		auth := apiV1.Group("/auth")
+		{
+			auth.POST("/login", authHdl.Login)
+			auth.GET("/me", middleware.JWTAuth(cfg.AppSecret), authHdl.Me)
+		}
+
 		// Wilayah Purbalingga (Chaining Data Endpoints)
 		wilayah := apiV1.Group("/wilayah")
 		{
 			wilayah.GET("/kecamatan", wilayahHdl.GetKecamatan)
 			wilayah.GET("/desa", wilayahHdl.GetDesa)
+		}
+
+		// Manajemen Formulir (Form Builder) untuk Admin OPD & Super Admin
+		forms := apiV1.Group("/forms")
+		forms.Use(middleware.JWTAuth(cfg.AppSecret), middleware.RequireRole("ADMIN_OPD", "SUPER_ADMIN"))
+		{
+			forms.GET("", formHdl.List)
+			forms.POST("", formHdl.Create)
+			forms.GET("/:id", formHdl.Get)
+			forms.PUT("/:id", formHdl.Update)
+			forms.PATCH("/:id/status", formHdl.UpdateStatus)
+			forms.DELETE("/:id", formHdl.Delete)
+		}
+
+		// Endpoint terproteksi untuk uji RBAC (sementara)
+		admin := apiV1.Group("/admin")
+		admin.Use(middleware.JWTAuth(cfg.AppSecret))
+		{
+			admin.GET("/ping", middleware.RequireRole("SUPER_ADMIN", "ADMIN_OPD", "OPERATOR"), func(c *gin.Context) {
+				handler.Success(c, http.StatusOK, "Akses admin berhasil", gin.H{
+					"role": c.GetString(middleware.CtxRole),
+				})
+			})
 		}
 	}
 
