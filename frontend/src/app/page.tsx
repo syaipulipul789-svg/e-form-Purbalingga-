@@ -508,13 +508,13 @@ export default function HomePage() {
                     </div>
 
                     {/* Action Button */}
-                    <button
-                      type="button"
+                    <a
+                      href={`/f/${item.slug}`}
                       className={`cursor-pointer w-full mt-2 py-2.5 px-4 text-xs font-black rounded-xl border-2 border-slate-900 shadow-[3px_3px_0px_#0F172A] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all flex items-center justify-center gap-2 ${item.colorTheme.btnColor}`}
                     >
                       <span>Buka & Isi Formulir</span>
                       <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
+                    </a>
                   </div>
                 </div>
               </div>
