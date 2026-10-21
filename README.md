@@ -59,6 +59,7 @@ Sistem migrasi database otomatis menyediakan akun master awal untuk pengujian:
 | **Super Admin** | `superadmin@purbalinggakab.go.id` | `Purbalingga2026!` | Diskominfo Purbalingga |
 | **Admin OPD** | `admin.dinkes@purbalinggakab.go.id` | `Purbalingga2026!` | Dinas Kesehatan Purbalingga |
 | **Admin OPD** | `admin.dinsos@purbalinggakab.go.id` | `Purbalingga2026!` | Dinas Sosial Purbalingga |
+| **Admin OPD** | `admin.dkukm@purbalinggakab.go.id` | `Purbalingga2026!` | Dinas Koperasi dan UKM Purbalingga |
 
 ---
 
@@ -168,3 +169,5 @@ e-form-purbalingga/
 ## 🏛️ Lisensi & Hak Cipta
 
 Dikelola dan dikembangkan untuk **Pemerintah Kabupaten Purbalingga** melalui **Dinas Komunikasi dan Informatika (Diskominfo)**. Hak Cipta © 2026.
+#   e - f o r m  
+ 
