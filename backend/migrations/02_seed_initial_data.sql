@@ -8,16 +8,25 @@ INSERT INTO opd (id, kode_opd, nama_opd, singkatan) VALUES
 ('e8d7a12b-2222-4c78-90ab-cdef12345678', 'DINKES', 'Dinas Kesehatan Kabupaten Purbalingga', 'Dinkes'),
 ('e8d7a12b-3333-4c78-90ab-cdef12345678', 'DINSOS', 'Dinas Sosial Kabupaten Purbalingga', 'Dinsos'),
 ('e8d7a12b-4444-4c78-90ab-cdef12345678', 'DKUKM', 'Dinas Koperasi dan UKM Purbalingga', 'Dkukm')
-ON CONFLICT (kode_opd) DO NOTHING;
+ON CONFLICT (kode_opd) DO UPDATE SET
+    nama_opd = EXCLUDED.nama_opd,
+    singkatan = EXCLUDED.singkatan,
+    updated_at = NOW();
 
 -- 2. Master Pengguna Default (Password Default: Purbalingga2026!)
--- Hash Bcrypt untuk 'Purbalingga2026!': $2a$10$7v1bS.vW4U..d4QxMqmHse6P7j3e5hZpYwR9U1T5V3eN6Q7Y8Z9a0
+-- Hash Bcrypt untuk 'Purbalingga2026!': $2a$10$YY6Gm4bqU0BIKyBLgkMPoutyjZdaSVXDeeXGMS4nzZfxMcfvqRt3e
 INSERT INTO users (id, opd_id, nama, email, password_hash, role) VALUES
-('c1f8a847-1111-4f8e-bf82-7235a90e3952', 'e8d7a12b-1111-4c78-90ab-cdef12345678', 'Super Admin Diskominfo', 'superadmin@purbalinggakab.go.id', '$2a$10$7v1bS.vW4U..d4QxMqmHse6P7j3e5hZpYwR9U1T5V3eN6Q7Y8Z9a0', 'SUPER_ADMIN'),
-('c1f8a847-2222-4f8e-bf82-7235a90e3952', 'e8d7a12b-2222-4c78-90ab-cdef12345678', 'Admin Dinas Kesehatan', 'admin.dinkes@purbalinggakab.go.id', '$2a$10$7v1bS.vW4U..d4QxMqmHse6P7j3e5hZpYwR9U1T5V3eN6Q7Y8Z9a0', 'ADMIN_OPD'),
-('c1f8a847-3333-4f8e-bf82-7235a90e3952', 'e8d7a12b-3333-4c78-90ab-cdef12345678', 'Admin Dinas Sosial', 'admin.dinsos@purbalinggakab.go.id', '$2a$10$7v1bS.vW4U..d4QxMqmHse6P7j3e5hZpYwR9U1T5V3eN6Q7Y8Z9a0', 'ADMIN_OPD'),
-('c1f8a847-4444-4f8e-bf82-7235a90e3952', 'e8d7a12b-4444-4c78-90ab-cdef12345678', 'Admin Dinas Koperasi dan UKM', 'admin.dkukm@purbalinggakab.go.id', '$2a$10$7v1bS.vW4U..d4QxMqmHse6P7j3e5hZpYwR9U1T5V3eN6Q7Y8Z9a0', 'ADMIN_OPD')
-ON CONFLICT (email) DO NOTHING;
+('c1f8a847-1111-4f8e-bf82-7235a90e3952', 'e8d7a12b-1111-4c78-90ab-cdef12345678', 'Super Admin Diskominfo', 'superadmin@purbalinggakab.go.id', '$2a$10$YY6Gm4bqU0BIKyBLgkMPoutyjZdaSVXDeeXGMS4nzZfxMcfvqRt3e', 'SUPER_ADMIN'),
+('c1f8a847-2222-4f8e-bf82-7235a90e3952', 'e8d7a12b-2222-4c78-90ab-cdef12345678', 'Admin Dinas Kesehatan', 'admin.dinkes@purbalinggakab.go.id', '$2a$10$YY6Gm4bqU0BIKyBLgkMPoutyjZdaSVXDeeXGMS4nzZfxMcfvqRt3e', 'ADMIN_OPD'),
+('c1f8a847-3333-4f8e-bf82-7235a90e3952', 'e8d7a12b-3333-4c78-90ab-cdef12345678', 'Admin Dinas Sosial', 'admin.dinsos@purbalinggakab.go.id', '$2a$10$YY6Gm4bqU0BIKyBLgkMPoutyjZdaSVXDeeXGMS4nzZfxMcfvqRt3e', 'ADMIN_OPD'),
+('c1f8a847-4444-4f8e-bf82-7235a90e3952', 'e8d7a12b-4444-4c78-90ab-cdef12345678', 'Admin Dinas Koperasi dan UKM', 'admin.dkukm@purbalinggakab.go.id', '$2a$10$YY6Gm4bqU0BIKyBLgkMPoutyjZdaSVXDeeXGMS4nzZfxMcfvqRt3e', 'ADMIN_OPD')
+ON CONFLICT (email) DO UPDATE SET
+    opd_id = EXCLUDED.opd_id,
+    nama = EXCLUDED.nama,
+    password_hash = EXCLUDED.password_hash,
+    role = EXCLUDED.role,
+    is_active = TRUE,
+    updated_at = NOW();
 
 -- 3. Formulir Pendaftaran Pendataan Pelaku Usaha Mikro (UMKM) & Bantuan Modal 2026
 --    Dinas Koperasi dan UKM Kabupaten Purbalingga — Kategori: Usaha & UMKM — Wajib NIK
@@ -229,4 +238,12 @@ INSERT INTO forms (
         "start_date": "2026-10-01T00:00:00Z",
         "end_date": "2026-10-30T23:59:59Z"
     }'
-) ON CONFLICT (slug) DO NOTHING;
+) ON CONFLICT (slug) DO UPDATE SET
+    opd_id = EXCLUDED.opd_id,
+    creator_id = EXCLUDED.creator_id,
+    title = EXCLUDED.title,
+    description = EXCLUDED.description,
+    status = EXCLUDED.status,
+    schema = EXCLUDED.schema,
+    settings = EXCLUDED.settings,
+    updated_at = NOW();

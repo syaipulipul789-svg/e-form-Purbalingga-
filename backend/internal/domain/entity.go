@@ -65,5 +65,7 @@ type FormResponse struct {
 	RespondentIdentifier *string         `db:"respondent_identifier" json:"respondent_identifier"`
 	Answers              json.RawMessage `db:"answers" json:"answers"`
 	Metadata             json.RawMessage `db:"metadata" json:"metadata"`
+	RegistrationNumber   *string         `db:"registration_number" json:"registration_number"`
+	IdempotencyKey       *string         `db:"idempotency_key" json:"-"`
 	SubmittedAt          time.Time       `db:"submitted_at" json:"submitted_at"`
 }
