@@ -102,3 +102,52 @@ type UpdateFormRequest struct {
 type UpdateStatusRequest struct {
 	Status string `json:"status" binding:"required"`
 }
+
+// PublicFormDetail adalah detail formulir yang aman ditampilkan ke publik.
+type PublicFormDetail struct {
+	FormSummary
+	BannerURL    *string         `json:"banner_url"`
+	Schema       json.RawMessage `json:"schema"`
+	Settings     json.RawMessage `json:"settings"`
+	OPD          OPDSummary      `json:"opd"`
+	IsOpen       bool            `json:"is_open"`
+	ClosedReason *string         `json:"closed_reason"`
+}
+
+// PublicSubmitRequest adalah payload pengiriman jawaban formulir publik.
+type PublicSubmitRequest struct {
+	RespondentNIK string          `json:"respondent_nik"`
+	Answers       json.RawMessage `json:"answers"`
+}
+
+// PublicSubmitResponse adalah respon sukses pengiriman formulir.
+type PublicSubmitResponse struct {
+	SubmissionID       uuid.UUID `json:"submission_id"`
+	RegistrationNumber string    `json:"registration_number"`
+	SubmittedAt        time.Time `json:"submitted_at"`
+}
+
+// FormResponseListQuery adalah parameter filter & paginasi daftar respons.
+type FormResponseListQuery struct {
+	Page    int
+	Limit   int
+	Search  string
+	KodeKec string
+}
+
+// FormResponseListResponse adalah respon terpaginasi daftar respons formulir.
+type FormResponseListResponse struct {
+	Items []FormResponse `json:"items"`
+	Page  int            `json:"page"`
+	Limit int            `json:"limit"`
+	Total int            `json:"total"`
+}
+
+// UploadResult adalah metadata berkas yang berhasil diunggah.
+type UploadResult struct {
+	FileID       string `json:"file_id"`
+	OriginalName string `json:"original_name"`
+	FileURL      string `json:"file_url"`
+	FileSize     int64  `json:"file_size"`
+	MimeType     string `json:"mime_type"`
+}

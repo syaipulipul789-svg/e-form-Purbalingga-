@@ -46,6 +46,18 @@ func main() {
 	formSvc := service.NewFormService(formRepo)
 	formHdl := handler.NewFormHandler(formSvc)
 
+	responseRepo := repository.NewResponseRepository(db)
+	responseSvc := service.NewResponseService(formRepo, responseRepo)
+	responseHdl := handler.NewResponseHandler(responseSvc)
+
+	adminRepo := repository.NewAdminRepository(db)
+	adminSvc := service.NewAdminService(adminRepo)
+	adminHdl := handler.NewAdminHandler(adminSvc)
+
+	publicFormSvc := service.NewPublicFormService(formRepo, responseRepo, opdRepo)
+	uploadSvc := service.NewUploadService(cfg.UploadDir, cfg.MaxUploadSizeMB)
+	publicHdl := handler.NewPublicHandler(publicFormSvc, uploadSvc, cfg.MaxUploadSizeMB)
+
 	// 4. Setup Gin Router
 	if cfg.AppEnv == "production" {
 		gin.SetMode(gin.ReleaseMode)
@@ -93,6 +105,14 @@ func main() {
 			wilayah.GET("/desa", wilayahHdl.GetDesa)
 		}
 
+		// Formulir Publik (tanpa autentikasi)
+		public := apiV1.Group("/public")
+		{
+			public.GET("/forms/:slug", publicHdl.GetForm)
+			public.POST("/forms/:slug/submit", publicHdl.Submit)
+			public.POST("/upload", publicHdl.Upload)
+		}
+
 		// Manajemen Formulir (Form Builder) untuk Admin OPD & Super Admin
 		forms := apiV1.Group("/forms")
 		forms.Use(middleware.JWTAuth(cfg.AppSecret), middleware.RequireRole("ADMIN_OPD", "SUPER_ADMIN"))
@@ -103,12 +123,27 @@ func main() {
 			forms.PUT("/:id", formHdl.Update)
 			forms.PATCH("/:id/status", formHdl.UpdateStatus)
 			forms.DELETE("/:id", formHdl.Delete)
+			forms.GET("/:id/responses", responseHdl.List)
 		}
 
 		// Endpoint terproteksi untuk uji RBAC (sementara)
 		admin := apiV1.Group("/admin")
 		admin.Use(middleware.JWTAuth(cfg.AppSecret))
 		{
+			superAdmin := admin.Group("/superadmin")
+			superAdmin.Use(middleware.RequireRole("SUPER_ADMIN"))
+			{
+				superAdmin.GET("/opds", adminHdl.ListOPDs)
+				superAdmin.POST("/opds", adminHdl.CreateOPD)
+				superAdmin.PUT("/opds/:id", adminHdl.UpdateOPD)
+				superAdmin.GET("/users", adminHdl.ListUsers)
+				superAdmin.POST("/users", adminHdl.CreateUser)
+				superAdmin.PUT("/users/:id", adminHdl.UpdateUser)
+				superAdmin.PATCH("/users/:id/status", adminHdl.SetUserStatus)
+				superAdmin.GET("/monitoring", adminHdl.Monitoring)
+				superAdmin.GET("/audit", adminHdl.AuditTrail)
+			}
+
 			admin.GET("/ping", middleware.RequireRole("SUPER_ADMIN", "ADMIN_OPD", "OPERATOR"), func(c *gin.Context) {
 				handler.Success(c, http.StatusOK, "Akses admin berhasil", gin.H{
 					"role": c.GetString(middleware.CtxRole),

@@ -267,7 +267,7 @@ func (s *formService) loadAccessible(ctx context.Context, actor Actor, id uuid.U
 		}
 		return nil, err
 	}
-	if !canAccess(actor, form) {
+	if !CanAccess(actor, form) {
 		return nil, ErrFormForbidden
 	}
 	return form, nil
@@ -277,7 +277,8 @@ func isSuperAdmin(actor Actor) bool {
 	return actor.Role == "SUPER_ADMIN"
 }
 
-func canAccess(actor Actor, form *domain.Form) bool {
+// CanAccess memeriksa apakah actor boleh mengakses formulir milik OPD tertentu.
+func CanAccess(actor Actor, form *domain.Form) bool {
 	if isSuperAdmin(actor) {
 		return true
 	}

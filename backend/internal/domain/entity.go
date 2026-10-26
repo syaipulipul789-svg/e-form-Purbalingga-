@@ -62,6 +62,7 @@ type Form struct {
 type FormResponse struct {
 	ID                   uuid.UUID       `db:"id" json:"id"`
 	FormID               uuid.UUID       `db:"form_id" json:"form_id"`
+	RegistrationNumber   *string         `db:"registration_number" json:"registration_number"`
 	RespondentIdentifier *string         `db:"respondent_identifier" json:"respondent_identifier"`
 	Answers              json.RawMessage `db:"answers" json:"answers"`
 	Metadata             json.RawMessage `db:"metadata" json:"metadata"`

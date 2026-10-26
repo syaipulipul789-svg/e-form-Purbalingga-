@@ -35,15 +35,13 @@ const NAV_ITEMS: NavItem[] = [
     label: 'Formulir Saya',
     href: '/admin/forms',
     icon: FilePlus2,
-    roles: ['ADMIN_OPD', 'OPERATOR'],
-    disabled: true,
+    roles: ['SUPER_ADMIN', 'ADMIN_OPD', 'OPERATOR'],
   },
   {
     label: 'Respons Masuk',
     href: '/admin/responses',
     icon: Inbox,
-    roles: ['ADMIN_OPD', 'OPERATOR'],
-    disabled: true,
+    roles: ['SUPER_ADMIN', 'ADMIN_OPD', 'OPERATOR'],
   },
   {
     label: 'Verifikasi Berkas',
@@ -57,21 +55,18 @@ const NAV_ITEMS: NavItem[] = [
     href: '/admin/opd',
     icon: Building2,
     roles: ['SUPER_ADMIN'],
-    disabled: true,
   },
   {
     label: 'Monitoring Sistem',
     href: '/admin/monitoring',
     icon: Activity,
     roles: ['SUPER_ADMIN'],
-    disabled: true,
   },
   {
     label: 'Audit Trail',
     href: '/admin/audit',
     icon: ClipboardList,
     roles: ['SUPER_ADMIN'],
-    disabled: true,
   },
 ];
 
@@ -92,6 +87,10 @@ export default function AdminSidebar() {
         {visibleItems.map((item) => {
           const isActive = pathname === item.href;
           const Icon = item.icon;
+          const label =
+            role === 'SUPER_ADMIN' && item.href === '/admin/forms'
+              ? 'Semua Formulir'
+              : item.label;
 
           if (item.disabled) {
             return (
@@ -100,7 +99,7 @@ export default function AdminSidebar() {
                 className="select-none flex items-center gap-3 px-3 py-2.5 rounded-xl bg-slate-50 border-2 border-dashed border-slate-200 text-slate-400 text-sm font-bold"
               >
                 <Icon className="w-4.5 h-4.5 w-[18px] h-[18px] flex-shrink-0" />
-                <span className="flex-1">{item.label}</span>
+                <span className="flex-1">{label}</span>
                 <span className="inline-flex items-center gap-1 text-[9px] font-black bg-slate-100 border border-slate-300 rounded px-1.5 py-0.5 uppercase">
                   <Lock className="w-2.5 h-2.5" />
                   Segera
@@ -120,7 +119,7 @@ export default function AdminSidebar() {
               }`}
             >
               <Icon className="w-[18px] h-[18px] flex-shrink-0" />
-              {item.label}
+              {label}
             </Link>
           );
         })}

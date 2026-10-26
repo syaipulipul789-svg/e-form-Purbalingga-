@@ -75,8 +75,11 @@ describe('AdminLayout (guard akses)', () => {
 
     expect(await screen.findByText('Super Admin Diskominfo')).toBeInTheDocument();
     expect(screen.getByText('Konten Rahasia Admin')).toBeInTheDocument();
-    expect(screen.getByText('OPD & Pengguna')).toBeInTheDocument();
-    expect(screen.getByText('Monitoring Sistem')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Semua Formulir' })).toHaveAttribute('href', '/admin/forms');
+    expect(screen.getByRole('link', { name: 'Respons Masuk' })).toHaveAttribute('href', '/admin/responses');
+    expect(screen.getByRole('link', { name: 'OPD & Pengguna' })).toHaveAttribute('href', '/admin/opd');
+    expect(screen.getByRole('link', { name: 'Monitoring Sistem' })).toHaveAttribute('href', '/admin/monitoring');
+    expect(screen.getByRole('link', { name: 'Audit Trail' })).toHaveAttribute('href', '/admin/audit');
     expect(mockRouter.replace).not.toHaveBeenCalled();
   });
 

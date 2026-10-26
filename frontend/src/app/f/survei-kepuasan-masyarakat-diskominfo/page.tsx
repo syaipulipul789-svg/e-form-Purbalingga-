@@ -226,7 +226,7 @@ export default function SKMPage() {
   }, [form, slug, submitted]);
 
   const apiBase =
-    process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
+    process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8088/api/v1';
 
   const setField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
