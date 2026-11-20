@@ -2,9 +2,9 @@
 
 Dokumen ini mendefinisikan kontrak REST API v1 antara Frontend Next.js dan Backend Go untuk sistem **E-Form Kabupaten Purbalingga**.
 
-- **Base URL:** `http://localhost:8080/api/v1` (Lokal) / `https://eform.purbalinggakab.go.id/api/v1` (Produksi)
+- **Base URL:** `http://localhost:8088/api/v1` (Lokal) / `https://eform.purbalinggakab.go.id/api/v1` (Produksi)
 - **Format Pertukaran:** `application/json` (Kecuali multipart untuk upload berkas)
-- **Autentikasi:** Bearer Token JWT pada header `Authorization: Bearer <token>` (Untuk endpoint terproteksi OPD/Admin)
+- **Autentikasi:** Sesi cookie `httpOnly` (`eform_session`) **atau** Bearer Token JWT pada header `Authorization: Bearer <token>` untuk endpoint terproteksi OPD/Admin. Frontend memakai `credentials: include`.
 
 ---
 
@@ -84,6 +84,24 @@ Dokumen ini mendefinisikan kontrak REST API v1 antara Frontend Next.js dan Backe
 - **Endpoint:** `GET /api/v1/auth/me`
 - **Headers:** `Authorization: Bearer <token>`
 - **Response 200 OK:** Mengembalikan objek user yang sedang login beserta data OPD terkait.
+
+### 2.3. Logout
+- **Endpoint:** `POST /api/v1/auth/logout`
+- **Akses:** Publik (menghapus cookie sesi jika ada)
+- **Response 200 OK:**
+```json
+{ "success": true, "message": "Logout berhasil", "data": { "logged_out": true } }
+```
+
+---
+
+## 2A. Dashboard Admin
+
+### 2A.1. Ringkasan Dashboard
+- **Endpoint:** `GET /api/v1/dashboard/summary`
+- **Headers:** Sesi admin (cookie/Bearer)
+- **Response 200 OK:** `total_forms`, `published_forms`, `total_responses`, `responses_today`, `pending_verification`, `response_trend` (14 hari), `recent_responses`, dan `top_forms`.
+- **Catatan:** `SUPER_ADMIN` melihat seluruh OPD; `ADMIN_OPD` hanya OPD sendiri.
 
 ---
 
@@ -215,10 +233,39 @@ Endpoint ini diteruskan (live proxy) oleh Backend Go langsung dari API Sidami Pu
 ```
 - **Response 201 Created:** Mengembalikan metadata form yang berhasil dibuat.
 
-### 4.3. Ambil Detail Formulir untuk Pengisian Publik
+### 4.3. Detail Formulir (Admin)
+- **Endpoint:** `GET /api/v1/forms/:id`
+- **Headers:** Sesi admin
+- **Response 200 OK:** Detail form beserta schema dan settings. Cross-OPD menghasilkan 404.
+
+### 4.4. Ubah Formulir
+- **Endpoint:** `PUT /api/v1/forms/:id`
+- **Headers:** Sesi admin
+- **Request Body:** Sama dengan create. Status baru mengikuti body; form `ARCHIVED` tidak dapat diubah.
+- **Response 200 OK:** Detail form terbaru.
+
+### 4.5. Ubah Status Formulir
+- **Endpoint:** `PATCH /api/v1/forms/:id/status`
+- **Headers:** Sesi admin
+- **Request Body:** `{ "status": "PUBLISHED" }`
+- **Status valid:** `DRAFT`, `PUBLISHED`, `CLOSED`, `ARCHIVED`.
+- **Response 200 OK:** Detail form terbaru. Publikasi memvalidasi schema (422 `VALIDATION_ERROR` bila belum valid).
+
+### 4.6. Hapus Formulir
+- **Endpoint:** `DELETE /api/v1/forms/:id`
+- **Headers:** Sesi admin
+- **Aturan:** Hanya `DRAFT`; 409 `FORM_NOT_DRAFT` bila bukan draft, 409 `FORM_HAS_RESPONSES` bila sudah memiliki respons.
+- **Response 200 OK:** `{ "success": true, "message": "Formulir berhasil dihapus" }`
+
+### 4.7. Daftar Formulir Publik
+- **Endpoint:** `GET /api/v1/public/forms`
+- **Akses:** Publik
+- **Response 200 OK:** Daftar form berstatus `PUBLISHED` dengan `is_public = true`, beserta `opd`, `total_responses`, `start_date`, `end_date`, `settings`, dan `is_open`/`closed_reason` (form bisa tampil tertutup karena tanggal/jadwal/kuota).
+
+### 4.8. Ambil Detail Formulir untuk Pengisian Publik
 - **Endpoint:** `GET /api/v1/public/forms/:slug`
 - **Akses:** Publik
-- **Response 200 OK:** Mengembalikan skema form siap render, nama OPD penerbit, dan status ketersediaan form (apakah masih buka atau sudah ditutup).
+- **Response 200 OK:** Mengembalikan skema form siap render, nama OPD penerbit, dan status ketersediaan form (apakah masih buka atau sudah ditutup). 404 bila tidak ditemukan/tidak publik.
 
 ---
 
@@ -243,6 +290,7 @@ Endpoint ini diteruskan (live proxy) oleh Backend Go langsung dari API Sidami Pu
   }
 }
 ```
+- **Catatan:** Berkas disimpan di `/uploads/submissions/...` dan hanya dapat diakses oleh admin terautentikasi.
 
 ### 5.2. Kirim Isian Formulir (Submit Response)
 - **Endpoint:** `POST /api/v1/public/forms/:slug/submit`
@@ -291,7 +339,33 @@ Endpoint ini diteruskan (live proxy) oleh Backend Go langsung dari API Sidami Pu
 - **Query:** `page=1&limit=20&search=budi&kode_kec=330315`
 - **Response 200 OK:** Mengembalikan daftar baris data responden dalam format tabular JSON.
 
-### 6.2. Ekspor Data ke Excel (.xlsx)
-- **Endpoint:** `GET /api/v1/forms/:id/export?format=xlsx`
-- **Headers:** `Authorization: Bearer <token>`
-- **Response:** File Stream `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet` dengan header `Content-Disposition: attachment; filename="respons_pbg_bansos-padamara-2026.xlsx"`.
+### 6.2. Ekspor Data (CSV / Excel)
+- **Endpoint:** `GET /api/v1/forms/:id/export?format=csv|xlsx`
+- **Headers:** Sesi admin
+- **Query filter:** `status`, `kode_kec`, `date_from`, `date_to`, `search` (sama dengan daftar respons).
+- **Response:** File stream `text/csv` atau `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet` dengan header `Content-Disposition: attachment`.
+
+### 6.3. Detail Respons
+- **Endpoint:** `GET /api/v1/forms/:id/responses/:responseId`
+- **Headers:** Sesi admin
+- **Response 200 OK:** Detail respons berisi jawaban, lampiran, NIK responden, status verifikasi, serta metadata penerima/verifikator.
+
+### 6.4. Verifikasi Respons
+- **Endpoint:** `PATCH /api/v1/forms/:id/responses/:responseId/verification`
+- **Headers:** Sesi admin
+- **Request Body:**
+```json
+{ "status": "ACCEPTED", "note": "Berkas lengkap dan sesuai." }
+```
+- **Status valid:** `PENDING`, `ACCEPTED`, `REJECTED`, `REVISION`.
+- **Aturan:** `REJECTED`/`REVISION` wajib menyertakan `note` (422 `VALIDATION_ERROR` bila kosong).
+- **Response 200 OK:** Detail respons terbaru.
+
+---
+
+## 7. OPD
+
+### 7.1. Daftar OPD
+- **Endpoint:** `GET /api/v1/opd`
+- **Headers:** Sesi admin
+- **Response 200 OK:** Daftar OPD aktif. `ADMIN_OPD` hanya menerima OPD-nya sendiri; `SUPER_ADMIN` menerima seluruh OPD.

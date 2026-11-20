@@ -1,6 +1,10 @@
 'use client';
 
+<<<<<<< HEAD
 import React, { useState, useMemo } from 'react';
+=======
+import React, { useEffect, useMemo, useState } from 'react';
+>>>>>>> 07c00404be99e7853df025b53dea2a67f4023a33
 import Link from 'next/link';
 import {
   FileText,
@@ -27,6 +31,7 @@ import {
   Layers,
   Sparkle,
 } from 'lucide-react';
+import { errorMessage, listPublicForms, type PublicForm } from '@/lib/api';
 
 interface FormItem {
   id: string;
@@ -38,18 +43,24 @@ interface FormItem {
   deadline: string;
   totalResponses: number;
   requiresNik: boolean;
+<<<<<<< HEAD
   available: boolean;
+=======
+  isOpen: boolean;
+  closedReason?: string;
+>>>>>>> 07c00404be99e7853df025b53dea2a67f4023a33
   colorTheme: {
-    banner: string;       // Top accent color banner
-    badge: string;        // Category badge background & text
-    btnColor: string;     // Button style
-    shadowColor: string;  // Colored shadow on hover
+    banner: string;
+    badge: string;
+    btnColor: string;
+    shadowColor: string;
     iconBg: string;
   };
 }
 
-const SAMPLE_FORMS: FormItem[] = [
+const THEMES = [
   {
+<<<<<<< HEAD
     id: 'f1',
     slug: 'bansos-umkm-purbalingga-2026',
     title: 'Pendataan Pelaku Usaha Mikro (UMKM) & Bantuan Modal 2026',
@@ -162,8 +173,89 @@ const SAMPLE_FORMS: FormItem[] = [
       shadowColor: 'hover:shadow-[4px_4px_0px_#047857]',
       iconBg: 'bg-[#D1FAE5]',
     },
+=======
+    banner: 'bg-[#FFE600]',
+    badge: 'bg-[#FEF08A] text-amber-950 border-amber-500',
+    btnColor: 'bg-[#FFE600] text-slate-900 hover:bg-[#FACC15]',
+    shadowColor: 'hover:shadow-[4px_4px_0px_#CA8A04]',
+    iconBg: 'bg-[#FEF08A]',
+  },
+  {
+    banner: 'bg-[#A855F7]',
+    badge: 'bg-[#F3E8FF] text-purple-950 border-purple-400',
+    btnColor: 'bg-[#A855F7] text-white hover:bg-[#9333EA]',
+    shadowColor: 'hover:shadow-[4px_4px_0px_#6D28D9]',
+    iconBg: 'bg-[#F3E8FF]',
+  },
+  {
+    banner: 'bg-[#38BDF8]',
+    badge: 'bg-[#E0F2FE] text-sky-950 border-sky-400',
+    btnColor: 'bg-[#0284C7] text-white hover:bg-[#0369A1]',
+    shadowColor: 'hover:shadow-[4px_4px_0px_#0369A1]',
+    iconBg: 'bg-[#E0F2FE]',
+  },
+  {
+    banner: 'bg-[#34D399]',
+    badge: 'bg-[#D1FAE5] text-emerald-950 border-emerald-400',
+    btnColor: 'bg-[#059669] text-white hover:bg-[#047857]',
+    shadowColor: 'hover:shadow-[4px_4px_0px_#047857]',
+    iconBg: 'bg-[#D1FAE5]',
+  },
+  {
+    banner: 'bg-[#FB923C]',
+    badge: 'bg-[#FFEDD5] text-orange-950 border-orange-400',
+    btnColor: 'bg-[#F97316] text-white hover:bg-[#EA580C]',
+    shadowColor: 'hover:shadow-[4px_4px_0px_#C2410C]',
+    iconBg: 'bg-[#FFEDD5]',
+  },
+  {
+    banner: 'bg-[#FB7185]',
+    badge: 'bg-[#FFE4E6] text-rose-950 border-rose-400',
+    btnColor: 'bg-[#F43F5E] text-white hover:bg-[#E11D48]',
+    shadowColor: 'hover:shadow-[4px_4px_0px_#BE123C]',
+    iconBg: 'bg-[#FFE4E6]',
+>>>>>>> 07c00404be99e7853df025b53dea2a67f4023a33
   },
 ];
+
+function categoryFor(form: PublicForm): string {
+  const opd = `${form.opd?.kode_opd || ''} ${form.opd?.nama_opd || ''}`.toLowerCase();
+  if (form.slug.includes('umkm') || opd.includes('koperasi')) return 'Usaha & UMKM';
+  if (form.slug.includes('skm') || form.slug.includes('survei') || opd.includes('komunikasi')) {
+    return 'Survei & Evaluasi';
+  }
+  if (form.slug.includes('kependudukan') || opd.includes('kependudukan')) return 'Kependudukan';
+  if (opd.includes('sosial')) return 'Bansos & Sosial';
+  if (opd.includes('kesehatan')) return 'Kesehatan';
+  if (opd.includes('tenaga kerja')) return 'Ketenagakerjaan';
+  return 'Layanan Publik';
+}
+
+function formatDeadline(form: PublicForm): string {
+  const value = form.settings?.end_date || form.end_date;
+  if (!value) return 'Terbuka Selalu';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Terbuka Selalu';
+  return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function toFormItem(form: PublicForm, index: number): FormItem {
+  const actualIndex = ['bansos-umkm-purbalingga-2026', 'survei-kepuasan-masyarakat-diskominfo'].indexOf(form.slug);
+  return {
+    id: form.id,
+    slug: form.slug,
+    title: form.title,
+    opd: form.opd?.nama_opd || 'Pemerintah Kabupaten Purbalingga',
+    category: categoryFor(form),
+    description: form.description || 'Formulir layanan digital resmi Pemerintah Kabupaten Purbalingga.',
+    deadline: formatDeadline(form),
+    totalResponses: form.total_responses,
+    requiresNik: Boolean(form.settings?.require_nik),
+    isOpen: form.is_open,
+    closedReason: form.closed_reason,
+    colorTheme: THEMES[(actualIndex >= 0 ? actualIndex : index) % THEMES.length],
+  };
+}
 
 const CATEGORIES = [
   { name: 'Semua Kategori', activeBg: 'bg-[#0F172A] text-white', hoverBorder: 'hover:border-slate-900' },
@@ -173,14 +265,35 @@ const CATEGORIES = [
   { name: 'Kesehatan', activeBg: 'bg-[#34D399] text-slate-900', hoverBorder: 'hover:border-emerald-500' },
   { name: 'Ketenagakerjaan', activeBg: 'bg-[#FB923C] text-slate-900', hoverBorder: 'hover:border-orange-500' },
   { name: 'Survei & Evaluasi', activeBg: 'bg-[#A855F7] text-white', hoverBorder: 'hover:border-purple-500' },
+  { name: 'Layanan Publik', activeBg: 'bg-[#059669] text-white', hoverBorder: 'hover:border-emerald-500' },
 ];
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Semua Kategori');
+  const [forms, setForms] = useState<FormItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+
+  useEffect(() => {
+    let active = true;
+    listPublicForms()
+      .then((items) => {
+        if (active) setForms(items.map(toFormItem));
+      })
+      .catch((err) => {
+        if (active) setLoadError(errorMessage(err));
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const filteredForms = useMemo(() => {
-    return SAMPLE_FORMS.filter((item) => {
+    return forms.filter((item) => {
       const matchCat =
         selectedCategory === 'Semua Kategori' || item.category === selectedCategory;
       const matchSearch =
@@ -189,7 +302,7 @@ export default function HomePage() {
         item.description.toLowerCase().includes(searchQuery.toLowerCase());
       return matchCat && matchSearch;
     });
-  }, [searchQuery, selectedCategory]);
+  }, [forms, searchQuery, selectedCategory]);
 
   return (
     <div className="min-h-screen bg-[#FFFDF5] text-[#0F172A] flex flex-col justify-between selection:bg-[#FFE600] selection:text-slate-900 font-sans">
@@ -387,7 +500,7 @@ export default function HomePage() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Cari permohonan, bantuan UMKM, bansos lansia, pelatihan BLK..."
+                  placeholder="Cari formulir layanan, nama OPD, atau kata kunci..."
                   className="w-full pl-12 pr-4 py-3 bg-[#FFFDF5] border-2 border-slate-900 rounded-xl text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#059669] placeholder:text-slate-400 placeholder:font-medium shadow-[2px_2px_0px_#0F172A]"
                 />
               </div>
@@ -447,7 +560,27 @@ export default function HomePage() {
           </div>
         </div>
 
-        {filteredForms.length === 0 ? (
+        {loading ? (
+          <div className="bg-white border-2 border-slate-900 rounded-2xl p-12 text-center flex flex-col items-center gap-3 shadow-[6px_6px_0px_#0F172A]">
+            <div className="w-12 h-12 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
+            <p className="text-sm font-black text-slate-700">Memuat formulir publik…</p>
+          </div>
+        ) : loadError ? (
+          <div className="bg-white border-2 border-slate-900 rounded-2xl p-10 text-center flex flex-col items-center gap-3 shadow-[6px_6px_0px_#0F172A]">
+            <div className="w-14 h-14 bg-[#FECDD3] border-2 border-slate-900 rounded-2xl flex items-center justify-center shadow-[3px_3px_0px_#0F172A]">
+              <HelpCircle className="w-7 h-7 text-slate-900" />
+            </div>
+            <h3 className="font-black text-lg text-slate-900">Gagal Memuat Formulir</h3>
+            <p className="text-xs sm:text-sm font-semibold text-slate-600 max-w-sm">{loadError}</p>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="cursor-pointer text-xs font-black px-5 py-2.5 bg-[#FFE600] text-slate-900 border-2 border-slate-900 rounded-xl shadow-[3px_3px_0px_#0F172A] mt-2"
+            >
+              Coba Lagi
+            </button>
+          </div>
+        ) : filteredForms.length === 0 ? (
           <div className="bg-white border-2 border-slate-900 rounded-2xl p-12 text-center flex flex-col items-center gap-3 shadow-[6px_6px_0px_#0F172A]">
             <div className="w-14 h-14 bg-[#FED7AA] border-2 border-slate-900 rounded-2xl flex items-center justify-center shadow-[3px_3px_0px_#0F172A]">
               <HelpCircle className="w-7 h-7 text-slate-900" />
@@ -484,7 +617,11 @@ export default function HomePage() {
                       <span className={`text-[11px] font-black px-2.5 py-0.5 rounded-md border-2 border-slate-900 shadow-[1.5px_1.5px_0px_#0F172A] ${item.colorTheme.badge}`}>
                         {item.category}
                       </span>
-                      {item.requiresNik ? (
+                      {!item.isOpen ? (
+                        <span className="text-[10px] font-black px-2 py-0.5 bg-[#FECDD3] text-rose-950 border border-slate-900 rounded-md shadow-[1px_1px_0px_#0F172A]" title={item.closedReason}>
+                          Ditutup
+                        </span>
+                      ) : item.requiresNik ? (
                         <span className="text-[10px] font-black px-2 py-0.5 bg-[#DCFCE7] text-emerald-950 border border-slate-900 rounded-md shadow-[1px_1px_0px_#0F172A]">
                           Wajib NIK
                         </span>
@@ -523,11 +660,16 @@ export default function HomePage() {
                     </div>
 
                     {/* Action Button */}
+<<<<<<< HEAD
                     {item.available ? (
+=======
+                    {item.isOpen ? (
+>>>>>>> 07c00404be99e7853df025b53dea2a67f4023a33
                       <a
                         href={`/f/${item.slug}`}
                         className={`cursor-pointer w-full mt-2 py-2.5 px-4 text-xs font-black rounded-xl border-2 border-slate-900 shadow-[3px_3px_0px_#0F172A] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all flex items-center justify-center gap-2 ${item.colorTheme.btnColor}`}
                       >
+<<<<<<< HEAD
                         <span>Buka &amp; Isi Formulir</span>
                         <ArrowRight className="w-3.5 h-3.5" />
                       </a>
@@ -536,6 +678,19 @@ export default function HomePage() {
                         <Clock className="w-3.5 h-3.5" />
                         <span>Belum Tersedia</span>
                       </div>
+=======
+                        <span>Buka & Isi Formulir</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </a>
+                    ) : (
+                      <span
+                        title={item.closedReason}
+                        className="w-full mt-2 py-2.5 px-4 text-xs font-black rounded-xl border-2 border-slate-900 bg-slate-200 text-slate-500 flex items-center justify-center gap-2 cursor-not-allowed"
+                      >
+                        <Lock className="w-3.5 h-3.5" />
+                        Formulir Ditutup
+                      </span>
+>>>>>>> 07c00404be99e7853df025b53dea2a67f4023a33
                     )}
                   </div>
                 </div>

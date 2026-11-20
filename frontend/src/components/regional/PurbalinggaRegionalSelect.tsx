@@ -41,7 +41,11 @@ export default function PurbalinggaRegionalSelect({
   const [loadingDesa, setLoadingDesa] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+<<<<<<< HEAD
   const apiBase = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
+=======
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8088/api/v1';
+>>>>>>> 07c00404be99e7853df025b53dea2a67f4023a33
 
   // 1. Fetch seluruh 18 Kecamatan Purbalingga
   useEffect(() => {

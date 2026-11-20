@@ -4,13 +4,11 @@ WORKDIR /app
 
 RUN apk add --no-cache git
 
-COPY go.mod ./
-# Note: jika go.sum belum ada, go mod download akan mendownload dependensi dari go.mod
-RUN go mod download || true
+COPY go.mod go.sum ./
+RUN go mod download
 
 COPY . .
 
-RUN go mod tidy
 RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o server ./cmd/server/main.go
 
 # Runtime Stage

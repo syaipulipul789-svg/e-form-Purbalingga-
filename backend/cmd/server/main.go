@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -33,6 +34,7 @@ func main() {
 	}
 	defer db.Close()
 
+<<<<<<< HEAD
 	// 2b. Pastikan skema & migrasi terbaru diterapkan (aman untuk volume lama)
 	migrationCtx, cancelMigrations := context.WithTimeout(context.Background(), 2*time.Minute)
 	if err := database.RunMigrations(migrationCtx, db); err != nil {
@@ -69,6 +71,38 @@ func main() {
 	publicFormSvc := service.NewPublicFormService(formRepo, responseRepo, opdRepo)
 	uploadSvc := service.NewUploadService(cfg.UploadDir, cfg.MaxUploadSizeMB)
 	publicHdl := handler.NewPublicHandler(publicFormSvc, uploadSvc, cfg.MaxUploadSizeMB)
+=======
+	// 3. Inisialisasi Repository, Service, dan Handler
+	formRepo := repository.NewFormRepository(db)
+	responseRepo := repository.NewResponseRepository(db)
+	userRepo := repository.NewUserRepository(db)
+	opdRepo := repository.NewOPDRepository(db)
+	dashboardRepo := repository.NewDashboardRepository(db)
+
+	wilayahSvc := service.NewWilayahService(cfg.SidamiAPIBase)
+	wilayahHdl := handler.NewWilayahHandler(wilayahSvc)
+
+	publicFormSvc := service.NewPublicFormService(db, formRepo, responseRepo, cfg.AppSecret)
+	publicFormHdl := handler.NewPublicFormHandler(publicFormSvc)
+
+	uploadSvc := service.NewUploadService(cfg.UploadDir, cfg.MaxUploadSizeMB)
+	uploadHdl := handler.NewUploadHandler(uploadSvc)
+
+	authSvc := service.NewAuthService(userRepo, opdRepo, cfg.JWTSecret, time.Duration(cfg.JWTExpiresHours)*time.Hour)
+	authHdl := handler.NewAuthHandler(authSvc, cfg)
+	authMW := middleware.NewAuthMiddleware(userRepo, opdRepo, cfg.JWTSecret, cfg.CookieName)
+
+	adminFormSvc := service.NewAdminFormService(db, formRepo, opdRepo)
+	adminFormHdl := handler.NewAdminFormHandler(adminFormSvc)
+
+	adminResponseSvc := service.NewAdminResponseService(formRepo, responseRepo)
+	adminResponseHdl := handler.NewAdminResponseHandler(adminResponseSvc)
+
+	dashboardSvc := service.NewDashboardService(dashboardRepo)
+	dashboardHdl := handler.NewDashboardHandler(dashboardSvc)
+
+	opdHdl := handler.NewOPDHandler(opdRepo)
+>>>>>>> 07c00404be99e7853df025b53dea2a67f4023a33
 
 	// 4. Setup Gin Router
 	if cfg.AppEnv == "production" {
@@ -79,17 +113,26 @@ func main() {
 
 	// 5. Setup CORS Middleware
 	router.Use(cors.New(cors.Config{
+<<<<<<< HEAD
 		AllowOrigins:     cfg.CORSAllowedOrigins,
+=======
+		AllowOrigins:     cfg.AllowedOrigins,
+>>>>>>> 07c00404be99e7853df025b53dea2a67f4023a33
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "Idempotency-Key"},
 		ExposeHeaders:    []string{"Content-Length", "Content-Disposition"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
+	router.Use(middleware.EnforceAllowedOrigin(cfg.AllowedOrigins))
 
 	// 6. Static File Serving untuk Uploads
 	_ = os.MkdirAll(cfg.UploadDir, 0755)
-	router.Static("/uploads", cfg.UploadDir)
+	router.Static("/uploads/forms", filepath.Join(cfg.UploadDir, "forms"))
+	router.Static("/uploads/banners", filepath.Join(cfg.UploadDir, "banners"))
+	submissionFiles := router.Group("/uploads/submissions")
+	submissionFiles.Use(authMW.Authenticate())
+	submissionFiles.Static("", filepath.Join(cfg.UploadDir, "submissions"))
 
 	// 7. Health Check
 	router.GET("/health", func(c *gin.Context) {
@@ -117,6 +160,7 @@ func main() {
 			wilayah.GET("/desa", wilayahHdl.GetDesa)
 		}
 
+<<<<<<< HEAD
 		// Formulir Publik (tanpa autentikasi)
 		public := apiV1.Group("/public")
 		{
@@ -164,6 +208,43 @@ func main() {
 					"role": c.GetString(middleware.CtxRole),
 				})
 			})
+=======
+		// Formulir publik & pengunggahan berkas
+		public := apiV1.Group("/public")
+		{
+			public.GET("/forms", publicFormHdl.List)
+			public.GET("/forms/:slug", publicFormHdl.GetForm)
+			public.POST("/forms/:slug/submit", publicFormHdl.Submit)
+			public.POST("/upload", uploadHdl.Upload)
+		}
+
+		// Autentikasi admin
+		auth := apiV1.Group("/auth")
+		{
+			auth.POST("/login", middleware.LoginRateLimit(20, time.Minute), authHdl.Login)
+			auth.GET("/me", authMW.Authenticate(), authHdl.Me)
+			auth.POST("/logout", authHdl.Logout)
+		}
+
+		// Endpoint admin terproteksi
+		admin := apiV1.Group("")
+		admin.Use(authMW.Authenticate())
+		{
+			admin.GET("/opd", opdHdl.List)
+			admin.GET("/dashboard/summary", dashboardHdl.Summary)
+
+			admin.GET("/forms", adminFormHdl.List)
+			admin.POST("/forms", adminFormHdl.Create)
+			admin.GET("/forms/:id", adminFormHdl.Get)
+			admin.PUT("/forms/:id", adminFormHdl.Update)
+			admin.PATCH("/forms/:id/status", adminFormHdl.UpdateStatus)
+			admin.DELETE("/forms/:id", adminFormHdl.Delete)
+
+			admin.GET("/forms/:id/responses", adminResponseHdl.List)
+			admin.GET("/forms/:id/responses/:responseId", adminResponseHdl.Get)
+			admin.PATCH("/forms/:id/responses/:responseId/verification", adminResponseHdl.UpdateVerification)
+			admin.GET("/forms/:id/export", adminResponseHdl.Export)
+>>>>>>> 07c00404be99e7853df025b53dea2a67f4023a33
 		}
 	}
 
