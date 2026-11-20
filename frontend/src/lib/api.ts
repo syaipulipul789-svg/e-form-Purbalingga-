@@ -1,4 +1,4 @@
-export const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8088/api/v1';
+export const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
 const TOKEN_KEY = 'eform_token';
 

@@ -25,7 +25,7 @@ INSERT INTO forms (
     'e8d7a12b-3333-4c78-90ab-cdef12345678',
     'c1f8a847-3333-4f8e-bf82-7235a90e3952',
     'bansos-umkm-purbalingga-2026',
-    'Pendataan Pelaku Usaha Mikro Kabupaten Purbalingga 2026',
+    'Pendataan Pelaku Usaha Mikro (UMKM) & Bantuan Modal 2026',
     'Formulir inventarisasi usaha mikro dalam rangka pembinaan dan penyaluran program bantuan dinas.',
     'PUBLISHED',
     '{

@@ -55,6 +55,22 @@ func (h *PublicHandler) Submit(c *gin.Context) {
 	Success(c, http.StatusCreated, "Formulir berhasil dikirim", res)
 }
 
+// Track menangani POST /api/v1/public/track
+func (h *PublicHandler) Track(c *gin.Context) {
+	var req domain.PublicTrackRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		Error(c, http.StatusBadRequest, "VALIDATION_ERROR", "Data yang dikirim tidak valid", err.Error())
+		return
+	}
+
+	res, err := h.formService.Track(c.Request.Context(), req.RegistrationNumber, req.NIK)
+	if err != nil {
+		h.writeError(c, err)
+		return
+	}
+	Success(c, http.StatusOK, "Status pengajuan berhasil dimuat", res)
+}
+
 // Upload menangani POST /api/v1/public/upload
 func (h *PublicHandler) Upload(c *gin.Context) {
 	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, h.maxUploadByte+(1024*1024))
@@ -110,6 +126,8 @@ func (h *PublicHandler) writeError(c *gin.Context, err error) {
 		Error(c, http.StatusConflict, "DUPLICATE_RESPONSE", repository.ErrDuplicateResponse.Error(), nil)
 	case errors.Is(err, repository.ErrQuotaExceeded):
 		Error(c, http.StatusConflict, "QUOTA_EXCEEDED", repository.ErrQuotaExceeded.Error(), nil)
+	case errors.Is(err, repository.ErrSubmissionNotFound):
+		Error(c, http.StatusNotFound, "NOT_FOUND", "Pengajuan tidak ditemukan. Periksa kembali nomor registrasi dan NIK Anda.", nil)
 	default:
 		Error(c, http.StatusInternalServerError, "INTERNAL_ERROR", "Gagal memproses formulir", nil)
 	}

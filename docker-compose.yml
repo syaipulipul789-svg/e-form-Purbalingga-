@@ -37,6 +37,7 @@ services:
       UPLOAD_DIR: /app/storage/uploads
       MAX_UPLOAD_SIZE_MB: ${MAX_UPLOAD_SIZE_MB:-10}
       SIDAMI_API_BASE: ${SIDAMI_API_BASE:-https://api.sidami.purbalinggakab.go.id/api}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:3002,http://127.0.0.1:3000,http://127.0.0.1:3002}
     ports:
       - "${APP_PORT:-8088}:${APP_PORT:-8088}"
     volumes:
@@ -49,16 +50,18 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8088/api/v1}
-        NEXT_PUBLIC_STORAGE_URL: ${NEXT_PUBLIC_STORAGE_URL:-http://localhost:8088/uploads}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-/api/v1}
+        NEXT_PUBLIC_STORAGE_URL: ${NEXT_PUBLIC_STORAGE_URL:-/uploads}
+        API_INTERNAL_URL: ${API_INTERNAL_URL:-http://backend:8088}
     container_name: eform-frontend
     restart: unless-stopped
     depends_on:
       - backend
     environment:
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8088/api/v1}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-/api/v1}
       NEXT_PUBLIC_APP_NAME: ${NEXT_PUBLIC_APP_NAME:-E-Form Kabupaten Purbalingga}
-      NEXT_PUBLIC_STORAGE_URL: ${NEXT_PUBLIC_STORAGE_URL:-http://localhost:8088/uploads}
+      NEXT_PUBLIC_STORAGE_URL: ${NEXT_PUBLIC_STORAGE_URL:-/uploads}
+      API_INTERNAL_URL: ${API_INTERNAL_URL:-http://backend:8088}
     ports:
       - "${FRONTEND_PORT:-3002}:3000"
     networks:

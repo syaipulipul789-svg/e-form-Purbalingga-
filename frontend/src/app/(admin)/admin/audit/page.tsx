@@ -21,6 +21,7 @@ const ACTION_LABELS: Record<string, string> = {
   USER_UPDATED: 'Memperbarui pengguna',
   USER_ACTIVATED: 'Mengaktifkan pengguna',
   USER_DEACTIVATED: 'Menonaktifkan pengguna',
+  RESPONSE_STATUS_UPDATED: 'Memperbarui status pengajuan',
 };
 
 function errorMessage(error: unknown): string {
@@ -121,6 +122,7 @@ export default function AdminAuditPage() {
               <option value="">Semua perubahan</option>
               <option value="OPD">OPD</option>
               <option value="USER">Pengguna</option>
+              <option value="FORM_RESPONSE">Pengajuan</option>
             </select>
           </label>
         </div>

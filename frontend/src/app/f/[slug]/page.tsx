@@ -23,6 +23,7 @@ import {
   FileCheck,
   Barcode,
   Building2,
+  Search,
 } from 'lucide-react';
 import PurbalinggaRegionalSelect, { RegionalValue } from '@/components/regional/PurbalinggaRegionalSelect';
 
@@ -175,6 +176,7 @@ export default function FormPage({ params }: { params: { slug: string } }) {
   const [regNumber, setRegNumber] = useState<string>('');
   const [submittedAt, setSubmittedAt] = useState<string>('');
   const [uploadStatus, setUploadStatus] = useState<string>('');
+  const [submitError, setSubmitError] = useState<string>('');
 
   // Load draft from localStorage
   useEffect(() => {
@@ -246,7 +248,7 @@ export default function FormPage({ params }: { params: { slug: string } }) {
     }
   }, [form, slug, submitted]);
 
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8088/api/v1';
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
   const setField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -345,22 +347,28 @@ export default function FormPage({ params }: { params: { slug: string } }) {
   };
 
   const uploadFile = async (f: File): Promise<{ file_id?: string; file_url?: string }> => {
+    const fd = new FormData();
+    fd.append('file', f);
+    let res: Response;
     try {
-      const fd = new FormData();
-      fd.append('file', f);
-      const res = await fetch(`${apiBase}/public/upload`, { method: 'POST', body: fd });
-      const json = await res.json();
-      if (json?.success && json?.data) return json.data;
+      res = await fetch(`${apiBase}/public/upload`, { method: 'POST', body: fd });
     } catch {
-      /* fall through */
+      throw new Error('Gagal mengunggah berkas. Periksa koneksi Anda lalu coba lagi.');
     }
-    return { file_id: crypto.randomUUID(), file_url: `/uploads/local/${f.name}` };
+    const json = (await res.json().catch(() => null)) as
+      | { success?: boolean; message?: string; data?: { file_id?: string; file_url?: string } }
+      | null;
+    if (!res.ok || !json?.success || !json?.data) {
+      throw new Error(json?.message || 'Berkas gagal diunggah. Silakan coba lagi.');
+    }
+    return json.data;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
     if (submitting) return;
+    setSubmitError('');
     setSubmitting(true);
     setUploadStatus('Mengunggah berkas...');
     try {
@@ -443,24 +451,47 @@ export default function FormPage({ params }: { params: { slug: string } }) {
       }
 
       setUploadStatus('Menyimpan isian formulir...');
-      let reg = '';
+      let submitRes: Response;
       try {
-        const res = await fetch(`${apiBase}/public/forms/${slug}/submit`, {
+        submitRes = await fetch(`${apiBase}/public/forms/${slug}/submit`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Idempotency-Key': crypto.randomUUID() },
           body: JSON.stringify({ respondent_nik: isUMKM ? form.nik : form.kd_nik, answers }),
         });
-        const json = await res.json();
-        if (json?.success && json?.data?.registration_number) {
-          reg = json.data.registration_number;
-        }
       } catch {
-        /* backend unavailable -> local receipt */
+        throw new Error('Tidak dapat menghubungi server. Periksa koneksi Anda lalu coba lagi.');
       }
 
+      const submitJson = (await submitRes.json().catch(() => null)) as
+        | {
+            success?: boolean;
+            message?: string;
+            data?: { registration_number?: string };
+            error?: { code?: string; details?: Record<string, string> };
+          }
+        | null;
+
+      if (!submitRes.ok || !submitJson?.success) {
+        const details = submitJson?.error?.details;
+        let detailText = '';
+        if (details && typeof details === 'object') {
+          setErrors((prev) => ({ ...prev, ...(details as Record<string, string>) }));
+          detailText = Object.values(details as Record<string, string>)
+            .filter((value) => typeof value === 'string' && value.trim() !== '')
+            .join(' ');
+        }
+        throw new Error(
+          detailText ||
+            submitJson?.message ||
+            (submitRes.status === 409
+              ? 'NIK ini sudah pernah mengirim formulir.'
+              : 'Formulir gagal dikirim. Silakan periksa kembali isian Anda.'),
+        );
+      }
+
+      const reg = submitJson?.data?.registration_number;
       if (!reg) {
-        const prefix = isKependudukan ? 'ADK' : 'PBG';
-        reg = `${prefix}-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}${String.fromCharCode(65 + Math.floor(Math.random() * 26))}`;
+        throw new Error('Server tidak mengembalikan nomor registrasi. Silakan coba lagi.');
       }
 
       const now = new Date().toLocaleString('id-ID', {
@@ -471,18 +502,13 @@ export default function FormPage({ params }: { params: { slug: string } }) {
         minute: '2-digit',
       });
 
-      // Save to local submissions for offline visibility
-      try {
-        const existing = JSON.parse(localStorage.getItem(`form_submissions_${slug}`) || '[]');
-        existing.push({ registration_number: reg, submitted_at: now, answers });
-        localStorage.setItem(`form_submissions_${slug}`, JSON.stringify(existing));
-      } catch {}
-
       localStorage.removeItem(`form_draft_${slug}`);
 
       setRegNumber(reg);
       setSubmittedAt(now);
       setSubmitted(true);
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : 'Formulir gagal dikirim.');
     } finally {
       setSubmitting(false);
       setUploadStatus('');
@@ -520,7 +546,7 @@ export default function FormPage({ params }: { params: { slug: string } }) {
   // HALAMAN TERIMA KASIH (RESEPSI)
   // ========================================================================
   if (submitted) {
-    const opdName = isKependudukan ? 'Dinas Kependudukan dan Pencatatan Sipil' : 'Dinas Koperasi dan UKM';
+    const opdName = isKependudukan ? 'Dinas Kependudukan dan Pencatatan Sipil' : 'Dinas Sosial, Pemberdayaan Perempuan & PA';
     return (
       <div className="min-h-screen bg-[#FFFDF5] flex items-center justify-center p-6 print:bg-white">
         <div className="max-w-lg w-full bg-white border-2 border-slate-900 rounded-2xl shadow-[8px_8px_0px_#0F172A] overflow-hidden">
@@ -552,8 +578,11 @@ export default function FormPage({ params }: { params: { slug: string } }) {
               >
                 <Printer className="w-4 h-4" /> Cetak Bukti
               </button>
-              <Link href="/" className="btn-brutal-emerald justify-center flex-1">
-                Kembali ke Katalog
+              <Link href="/lacak" className="btn-brutal-emerald justify-center flex-1">
+                <Search className="w-4 h-4" /> Cek Status
+              </Link>
+              <Link href="/" className="btn-brutal-white justify-center flex-1">
+                Katalog
               </Link>
             </div>
           </div>
@@ -573,7 +602,7 @@ export default function FormPage({ params }: { params: { slug: string } }) {
             <Link href="/" className="inline-flex items-center gap-1.5 hover:underline">
               <ArrowLeft className="w-3.5 h-3.5" /> Katalog Formulir
             </Link>
-            <span className="tracking-tight hidden sm:block">E-Form Kabupaten Purbalingga • Dinas Koperasi dan UKM</span>
+            <span className="tracking-tight hidden sm:block">E-Form Kabupaten Purbalingga • Dinas Sosial, Pemberdayaan Perempuan &amp; PA</span>
           </div>
         </div>
 
@@ -887,6 +916,16 @@ export default function FormPage({ params }: { params: { slug: string } }) {
             {uploadStatus && (
               <div className="bg-[#F0F9FF] border-2 border-slate-900 rounded-xl p-3 text-center text-xs font-black text-slate-800 shadow-[3px_3px_0px_#0F172A]">
                 {uploadStatus}
+              </div>
+            )}
+
+            {submitError && (
+              <div role="alert" className="bg-[#FFE4E6] border-2 border-slate-900 rounded-xl p-4 flex items-start gap-3 shadow-[3px_3px_0px_#0F172A]">
+                <AlertCircle className="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" />
+                <div className="text-xs font-bold text-rose-950">
+                  <p className="font-black">Formulir gagal dikirim</p>
+                  <p className="mt-0.5">{submitError}</p>
+                </div>
               </div>
             )}
 
@@ -1503,6 +1542,16 @@ export default function FormPage({ params }: { params: { slug: string } }) {
             {uploadStatus && (
               <div className="bg-[#F0F9FF] border-2 border-slate-900 rounded-xl p-3 text-center text-xs font-black text-slate-800 shadow-[3px_3px_0px_#0F172A]">
                 {uploadStatus}
+              </div>
+            )}
+
+            {submitError && (
+              <div role="alert" className="bg-[#FFE4E6] border-2 border-slate-900 rounded-xl p-4 flex items-start gap-3 shadow-[3px_3px_0px_#0F172A]">
+                <AlertCircle className="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" />
+                <div className="text-xs font-bold text-rose-950">
+                  <p className="font-black">Formulir gagal dikirim</p>
+                  <p className="mt-0.5">{submitError}</p>
+                </div>
               </div>
             )}
 

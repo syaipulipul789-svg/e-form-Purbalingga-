@@ -3,17 +3,19 @@ package config
 import (
 	"os"
 	"strconv"
+	"strings"
 )
 
 type Config struct {
-	AppEnv          string
-	AppPort         string
-	AppSecret       string
-	DatabaseURL     string
-	UploadDir       string
-	MaxUploadSizeMB int
-	SidamiAPIBase   string
-	JWTExpiryHours  int
+	AppEnv             string
+	AppPort            string
+	AppSecret          string
+	DatabaseURL        string
+	UploadDir          string
+	MaxUploadSizeMB    int
+	SidamiAPIBase      string
+	JWTExpiryHours     int
+	CORSAllowedOrigins []string
 }
 
 func LoadConfig() *Config {
@@ -36,6 +38,12 @@ func LoadConfig() *Config {
 		MaxUploadSizeMB: maxUploadMB,
 		SidamiAPIBase:   getEnv("SIDAMI_API_BASE", "https://api.sidami.purbalinggakab.go.id/api"),
 		JWTExpiryHours:  jwtExpiryHours,
+		CORSAllowedOrigins: getEnvList("CORS_ALLOWED_ORIGINS", []string{
+			"http://localhost:3000",
+			"http://localhost:3002",
+			"http://127.0.0.1:3000",
+			"http://127.0.0.1:3002",
+		}),
 	}
 }
 
@@ -44,4 +52,22 @@ func getEnv(key, defaultVal string) string {
 		return val
 	}
 	return defaultVal
+}
+
+func getEnvList(key string, defaultVal []string) []string {
+	raw := strings.TrimSpace(os.Getenv(key))
+	if raw == "" {
+		return defaultVal
+	}
+	parts := strings.Split(raw, ",")
+	values := make([]string, 0, len(parts))
+	for _, part := range parts {
+		if trimmed := strings.TrimSpace(part); trimmed != "" {
+			values = append(values, trimmed)
+		}
+	}
+	if len(values) == 0 {
+		return defaultVal
+	}
+	return values
 }

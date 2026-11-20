@@ -133,6 +133,30 @@ type FormResponseListQuery struct {
 	Limit   int
 	Search  string
 	KodeKec string
+	Status  string
+}
+
+// UpdateResponseStatusRequest adalah payload perubahan status pengajuan.
+type UpdateResponseStatusRequest struct {
+	Status       string `json:"status" binding:"required"`
+	PublicNote   string `json:"public_note"`
+	InternalNote string `json:"internal_note"`
+}
+
+// PublicTrackRequest adalah payload pelacakan status pengajuan oleh warga.
+type PublicTrackRequest struct {
+	RegistrationNumber string `json:"registration_number" binding:"required"`
+	NIK                string `json:"nik" binding:"required"`
+}
+
+// PublicTrackResponse adalah status pengajuan yang aman ditampilkan ke warga.
+type PublicTrackResponse struct {
+	RegistrationNumber string    `db:"registration_number" json:"registration_number"`
+	FormTitle          string    `db:"form_title" json:"form_title"`
+	Status             string    `db:"status" json:"status"`
+	PublicNote         string    `db:"public_note" json:"public_note"`
+	SubmittedAt        time.Time `db:"submitted_at" json:"submitted_at"`
+	UpdatedAt          time.Time `db:"updated_at" json:"updated_at"`
 }
 
 // FormResponseListResponse adalah respon terpaginasi daftar respons formulir.

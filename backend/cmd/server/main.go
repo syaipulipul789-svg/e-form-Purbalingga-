@@ -33,6 +33,18 @@ func main() {
 	}
 	defer db.Close()
 
+	// 2b. Pastikan skema & migrasi terbaru diterapkan (aman untuk volume lama)
+	migrationCtx, cancelMigrations := context.WithTimeout(context.Background(), 2*time.Minute)
+	if err := database.RunMigrations(migrationCtx, db); err != nil {
+		log.Printf("⚠ Peringatan migrasi database: %v", err)
+	} else {
+		log.Println("✓ Migrasi database selesai")
+	}
+	if err := database.EnsureSchema(migrationCtx, db); err != nil {
+		log.Printf("⚠ Peringatan penjaminan skema database: %v", err)
+	}
+	cancelMigrations()
+
 	// 3. Inisialisasi Repository, Service dan Handler
 	wilayahSvc := service.NewWilayahService(cfg.SidamiAPIBase)
 	wilayahHdl := handler.NewWilayahHandler(wilayahSvc)
@@ -67,7 +79,7 @@ func main() {
 
 	// 5. Setup CORS Middleware
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000", "http://localhost:3002", "http://127.0.0.1:3000", "http://127.0.0.1:3002"},
+		AllowOrigins:     cfg.CORSAllowedOrigins,
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "Idempotency-Key"},
 		ExposeHeaders:    []string{"Content-Length", "Content-Disposition"},
@@ -110,6 +122,7 @@ func main() {
 		{
 			public.GET("/forms/:slug", publicHdl.GetForm)
 			public.POST("/forms/:slug/submit", publicHdl.Submit)
+			public.POST("/track", publicHdl.Track)
 			public.POST("/upload", publicHdl.Upload)
 		}
 
@@ -124,6 +137,8 @@ func main() {
 			forms.PATCH("/:id/status", formHdl.UpdateStatus)
 			forms.DELETE("/:id", formHdl.Delete)
 			forms.GET("/:id/responses", responseHdl.List)
+			forms.GET("/:id/responses/:responseId", responseHdl.Get)
+			forms.PATCH("/:id/responses/:responseId/status", responseHdl.UpdateStatus)
 		}
 
 		// Endpoint terproteksi untuk uji RBAC (sementara)

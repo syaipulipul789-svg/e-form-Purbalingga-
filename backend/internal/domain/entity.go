@@ -66,5 +66,11 @@ type FormResponse struct {
 	RespondentIdentifier *string         `db:"respondent_identifier" json:"respondent_identifier"`
 	Answers              json.RawMessage `db:"answers" json:"answers"`
 	Metadata             json.RawMessage `db:"metadata" json:"metadata"`
+	Status               string          `db:"status" json:"status"`
+	InternalNote         string          `db:"internal_note" json:"internal_note"`
+	PublicNote           string          `db:"public_note" json:"public_note"`
+	VerifiedBy           *uuid.UUID      `db:"verified_by" json:"verified_by"`
+	VerifiedAt           *time.Time      `db:"verified_at" json:"verified_at"`
 	SubmittedAt          time.Time       `db:"submitted_at" json:"submitted_at"`
+	UpdatedAt            time.Time       `db:"updated_at" json:"updated_at"`
 }

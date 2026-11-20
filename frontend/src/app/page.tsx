@@ -38,6 +38,7 @@ interface FormItem {
   deadline: string;
   totalResponses: number;
   requiresNik: boolean;
+  available: boolean;
   colorTheme: {
     banner: string;       // Top accent color banner
     badge: string;        // Category badge background & text
@@ -52,12 +53,13 @@ const SAMPLE_FORMS: FormItem[] = [
     id: 'f1',
     slug: 'bansos-umkm-purbalingga-2026',
     title: 'Pendataan Pelaku Usaha Mikro (UMKM) & Bantuan Modal 2026',
-    opd: 'Dinas Koperasi dan UKM Purbalingga',
+    opd: 'Dinas Sosial, Pemberdayaan Perempuan & PA',
     category: 'Usaha & UMKM',
     description: 'Inventarisasi data pelaku usaha mikro aktif untuk verifikasi calon penerima fasilitasi legalitas NIB gratis dan hibah permodalan daerah.',
     deadline: '30 Oktober 2026',
-    totalResponses: 1420,
+    totalResponses: 0,
     requiresNik: true,
+    available: true,
     colorTheme: {
       banner: 'bg-[#FFE600]',
       badge: 'bg-[#FEF08A] text-amber-950 border-amber-500',
@@ -74,8 +76,9 @@ const SAMPLE_FORMS: FormItem[] = [
     category: 'Survei & Evaluasi',
     description: 'Evaluasi transparansi informasi publik, kecepatan respon kanal aduan, dan kualitas konektivitas internet desa se-Kabupaten Purbalingga.',
     deadline: 'Terbuka Selalu',
-    totalResponses: 854,
+    totalResponses: 0,
     requiresNik: false,
+    available: true,
     colorTheme: {
       banner: 'bg-[#A855F7]',
       badge: 'bg-[#F3E8FF] text-purple-950 border-purple-400',
@@ -92,8 +95,9 @@ const SAMPLE_FORMS: FormItem[] = [
     category: 'Kependudukan',
     description: 'Pengajuan surat pengantar pindah datang, pembaharuan Kartu Keluarga, dan cetak kutipan akta kelahiran tanpa antre di loket dinas.',
     deadline: 'Terbuka Selalu',
-    totalResponses: 2310,
+    totalResponses: 0,
     requiresNik: true,
+    available: false,
     colorTheme: {
       banner: 'bg-[#38BDF8]',
       badge: 'bg-[#E0F2FE] text-sky-950 border-sky-400',
@@ -110,8 +114,9 @@ const SAMPLE_FORMS: FormItem[] = [
     category: 'Ketenagakerjaan',
     description: 'Program beasiswa kejuruan teknik otomotif, operator garmen manufaktur, barista, dan digital marketing bersertifikasi kompetensi resmi BNSP.',
     deadline: '15 November 2026',
-    totalResponses: 620,
+    totalResponses: 0,
     requiresNik: true,
+    available: false,
     colorTheme: {
       banner: 'bg-[#FB923C]',
       badge: 'bg-[#FFEDD5] text-orange-950 border-orange-400',
@@ -128,8 +133,9 @@ const SAMPLE_FORMS: FormItem[] = [
     category: 'Bansos & Sosial',
     description: 'Pemutakhiran basis data terpadu (DTKS) warga lansia terlantar dan disabilitas berat untuk penetapan bantuan jaminan kebutuhan hidup bulanan.',
     deadline: '20 November 2026',
-    totalResponses: 412,
+    totalResponses: 0,
     requiresNik: true,
+    available: false,
     colorTheme: {
       banner: 'bg-[#FB7185]',
       badge: 'bg-[#FFE4E6] text-rose-950 border-rose-400',
@@ -146,8 +152,9 @@ const SAMPLE_FORMS: FormItem[] = [
     category: 'Kesehatan',
     description: 'Kuesioner evaluasi ketersediaan obat generik, ketepatan jadwal dokter, keramahan petugas, dan kenyamanan poli di 22 Puskesmas wilayah.',
     deadline: 'Terbuka Selalu',
-    totalResponses: 980,
+    totalResponses: 0,
     requiresNik: false,
+    available: false,
     colorTheme: {
       banner: 'bg-[#34D399]',
       badge: 'bg-[#D1FAE5] text-emerald-950 border-emerald-400',
@@ -294,6 +301,13 @@ export default function HomePage() {
                 <HelpCircle className="w-4 h-4 text-slate-700" />
                 <span>Panduan 3 Langkah</span>
               </a>
+              <Link
+                href="/lacak"
+                className="cursor-pointer inline-flex items-center gap-2 px-5 py-3.5 bg-[#FFE600] text-slate-900 font-extrabold text-sm border-2 border-slate-900 rounded-xl shadow-[4px_4px_0px_#0F172A] hover:bg-amber-300 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_#0F172A] transition-all"
+              >
+                <Search className="w-4 h-4 text-slate-900" />
+                <span>Cek Status Pengajuan</span>
+              </Link>
             </div>
           </div>
 
@@ -509,13 +523,20 @@ export default function HomePage() {
                     </div>
 
                     {/* Action Button */}
-                    <a
-                      href={`/f/${item.slug}`}
-                      className={`cursor-pointer w-full mt-2 py-2.5 px-4 text-xs font-black rounded-xl border-2 border-slate-900 shadow-[3px_3px_0px_#0F172A] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all flex items-center justify-center gap-2 ${item.colorTheme.btnColor}`}
-                    >
-                      <span>Buka & Isi Formulir</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </a>
+                    {item.available ? (
+                      <a
+                        href={`/f/${item.slug}`}
+                        className={`cursor-pointer w-full mt-2 py-2.5 px-4 text-xs font-black rounded-xl border-2 border-slate-900 shadow-[3px_3px_0px_#0F172A] active:translate-x-[3px] active:translate-y-[3px] active:shadow-none transition-all flex items-center justify-center gap-2 ${item.colorTheme.btnColor}`}
+                      >
+                        <span>Buka &amp; Isi Formulir</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </a>
+                    ) : (
+                      <div className="w-full mt-2 py-2.5 px-4 text-xs font-black rounded-xl border-2 border-slate-400 bg-slate-100 text-slate-500 flex items-center justify-center gap-2 cursor-not-allowed">
+                        <Clock className="w-3.5 h-3.5" />
+                        <span>Belum Tersedia</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

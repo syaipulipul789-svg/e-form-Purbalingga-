@@ -1,4 +1,4 @@
-.PHONY: help up down build restart logs logs-backend logs-frontend db-shell clean test test-backend test-frontend test-e2e
+.PHONY: help up down build restart logs logs-backend logs-frontend db-shell clean migrate test test-backend test-frontend test-e2e
 
 help: ## Tampilkan daftar perintah Makefile
 	@echo "======================================================================"
@@ -29,6 +29,13 @@ logs-frontend: ## Pantau logs khusus frontend Next.js
 
 db-shell: ## Masuk ke interactive psql shell di database PostgreSQL
 	docker compose exec postgres psql -U postgres -d eform_purbalingga
+
+migrate: ## Terapkan ulang seluruh migrasi SQL ke database yang sedang berjalan
+	@for f in backend/migrations/*.sql; do \
+		echo "→ $$f"; \
+		docker compose exec -T postgres psql -v ON_ERROR_STOP=1 -U $${DB_USER:-postgres} -d $${DB_NAME:-eform_purbalingga} < $$f || exit 1; \
+	done
+	@echo "✓ Migrasi selesai"
 
 clean: ## Hentikan container dan bersihkan seluruh volume data Docker
 	docker compose down -v

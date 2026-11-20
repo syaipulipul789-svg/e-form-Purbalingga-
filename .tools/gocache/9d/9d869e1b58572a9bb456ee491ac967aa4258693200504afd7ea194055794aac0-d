@@ -1,0 +1,8 @@
+./admin_service.go
+./auth_service.go
+./form_service.go
+./public_form_service.go
+./response_service.go
+./schema_validator.go
+./upload_service.go
+./wilayah_service.go

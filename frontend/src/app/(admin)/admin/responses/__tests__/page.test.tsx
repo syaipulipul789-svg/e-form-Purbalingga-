@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import AdminResponsesPage from '../page';
 import { apiFetch } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
@@ -24,8 +24,28 @@ describe('AdminResponsesPage', () => {
     jest.clearAllMocks();
     (useAuth as jest.Mock).mockReturnValue({ user: { role: 'ADMIN_OPD' } });
     (apiFetch as jest.Mock).mockImplementation((path: string) => {
+      if (path === '/wilayah/kecamatan') {
+        return Promise.resolve([{ kode_kec: 330315, nama_kecamatan: 'PADAMARA' }]);
+      }
       if (path === '/forms?page=1&limit=100') {
         return Promise.resolve({ items: [form], page: 1, limit: 100, total: 1 });
+      }
+      if (path.endsWith('/status')) {
+        return Promise.resolve({
+          id: 'response-1',
+          form_id: 'form-dinsos',
+          registration_number: 'REG-001',
+          respondent_identifier: null,
+          answers: { nama: 'Siti', f_nik: '3303123456789012' },
+          metadata: {},
+          status: 'VERIFIED',
+          internal_note: 'Berkas sesuai.',
+          public_note: '',
+          verified_by: 'user-1',
+          verified_at: '2026-10-16T08:00:00Z',
+          submitted_at: '2026-10-15T08:00:00Z',
+          updated_at: '2026-10-16T08:00:00Z',
+        });
       }
       if (path === '/forms/form-dinsos') {
         return Promise.resolve({
@@ -49,7 +69,13 @@ describe('AdminResponsesPage', () => {
           respondent_identifier: null,
           answers: { nama: 'Siti', f_nik: '3303123456789012' },
           metadata: {},
+          status: 'SUBMITTED',
+          internal_note: '',
+          public_note: '',
+          verified_by: null,
+          verified_at: null,
           submitted_at: '2026-10-15T08:00:00Z',
+          updated_at: '2026-10-15T08:00:00Z',
         }],
         page: 1,
         limit: 20,
@@ -76,5 +102,22 @@ describe('AdminResponsesPage', () => {
     expect(await screen.findByText('Nama lengkap')).toBeInTheDocument();
     expect(screen.getByText('••••••••••••9012')).toBeInTheDocument();
     expect(screen.queryByText('3303123456789012')).not.toBeInTheDocument();
+  });
+
+  it('memverifikasi pengajuan dan menampilkan aksi setujui/tolak', async () => {
+    render(<AdminResponsesPage />);
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Lihat' }));
+    fireEvent.click(await screen.findByRole('button', { name: /Verifikasi Pengajuan/i }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('button', { name: /Verifikasi Pengajuan/i })).not.toBeInTheDocument();
+    });
+    expect(screen.getByRole('button', { name: /Setujui/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Tolak/i })).toBeInTheDocument();
+    expect(apiFetch).toHaveBeenCalledWith(
+      '/forms/form-dinsos/responses/response-1/status',
+      expect.objectContaining({ method: 'PATCH' }),
+    );
   });
 });

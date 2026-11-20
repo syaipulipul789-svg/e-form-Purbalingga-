@@ -128,8 +128,12 @@ func TestCreateFormDefaultsAndDates(t *testing.T) {
 	if res.StartDate == nil || res.EndDate == nil {
 		t.Fatal("start_date/end_date harus dipetakan dari settings")
 	}
-	if res.OPDID != opdID {
-		t.Fatalf("opd_id harus OPD pemanggil, got %s", res.OPDID)
+	stored := repo.forms[res.ID]
+	if stored == nil {
+		t.Fatal("formulir harus tersimpan di repository")
+	}
+	if stored.OPDID != opdID {
+		t.Fatalf("opd_id harus OPD pemanggil, got %s", stored.OPDID)
 	}
 }
 

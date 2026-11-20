@@ -41,7 +41,7 @@ export default function PurbalinggaRegionalSelect({
   const [loadingDesa, setLoadingDesa] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8088/api/v1';
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
   // 1. Fetch seluruh 18 Kecamatan Purbalingga
   useEffect(() => {
@@ -174,11 +174,12 @@ export default function PurbalinggaRegionalSelect({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Dropdown 1: Kecamatan */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-extrabold text-black flex items-center gap-1">
+          <label htmlFor="wilayah-kecamatan" className="text-xs font-extrabold text-black flex items-center gap-1">
             Kecamatan {required && <span className="text-rose-600">*</span>}
           </label>
           <div className="relative">
             <select
+              id="wilayah-kecamatan"
               value={selectedKec || ''}
               onChange={handleKecChange}
               disabled={loadingKec}
@@ -201,11 +202,12 @@ export default function PurbalinggaRegionalSelect({
 
         {/* Dropdown 2: Desa / Kelurahan */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-extrabold text-black flex items-center gap-1">
+          <label htmlFor="wilayah-desa" className="text-xs font-extrabold text-black flex items-center gap-1">
             Desa / Kelurahan {required && <span className="text-rose-600">*</span>}
           </label>
           <div className="relative">
             <select
+              id="wilayah-desa"
               value={selectedDesa || ''}
               onChange={handleDesaChange}
               disabled={!selectedKec || loadingDesa}

@@ -63,6 +63,8 @@ export interface FormListResponse {
   total: number;
 }
 
+export type ResponseStatus = 'SUBMITTED' | 'VERIFIED' | 'APPROVED' | 'REJECTED';
+
 export interface FormResponse {
   id: string;
   form_id: string;
@@ -70,7 +72,13 @@ export interface FormResponse {
   respondent_identifier: string | null;
   answers: Record<string, unknown>;
   metadata: Record<string, unknown>;
+  status: ResponseStatus;
+  internal_note: string;
+  public_note: string;
+  verified_by: string | null;
+  verified_at: string | null;
   submitted_at: string;
+  updated_at: string;
 }
 
 export interface FormResponseListResponse {
@@ -78,6 +86,15 @@ export interface FormResponseListResponse {
   page: number;
   limit: number;
   total: number;
+}
+
+export interface PublicTrackResponse {
+  registration_number: string;
+  form_title: string;
+  status: ResponseStatus;
+  public_note: string;
+  submitted_at: string;
+  updated_at: string;
 }
 
 export interface AdminOPD {

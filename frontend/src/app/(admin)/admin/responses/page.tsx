@@ -11,47 +11,36 @@ import {
 } from 'lucide-react';
 import { ApiError, apiFetch } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
+import { getAnswerName, responseDate } from '@/lib/response-format';
+import { responseStatusMeta } from '@/lib/response-status';
+import ResponseDetail from '@/components/admin/ResponseDetail';
 import type {
   FormDetail,
   FormListResponse,
   FormResponse,
   FormResponseListResponse,
   FormSummary,
+  ResponseStatus,
 } from '@/types';
 
 const PAGE_SIZE = 20;
 
+const STATUS_FILTERS: Array<{ value: ResponseStatus | ''; label: string }> = [
+  { value: '', label: 'Semua status' },
+  { value: 'SUBMITTED', label: 'Baru' },
+  { value: 'VERIFIED', label: 'Diverifikasi' },
+  { value: 'APPROVED', label: 'Disetujui' },
+  { value: 'REJECTED', label: 'Ditolak' },
+];
+
+interface KecamatanOption {
+  kode_kec: number;
+  nama_kecamatan: string;
+}
+
 function errorMessage(error: unknown): string {
   if (error instanceof ApiError) return error.message;
   return error instanceof Error ? error.message : 'Terjadi kesalahan saat memuat respons.';
-}
-
-function displayValue(value: unknown): string {
-  if (value === null || value === undefined || value === '') return '—';
-  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
-    return String(value);
-  }
-  if (Array.isArray(value)) return value.map(displayValue).join(', ');
-  return Object.entries(value as Record<string, unknown>)
-    .map(([key, item]) => `${key}: ${displayValue(item)}`)
-    .join(' · ');
-}
-
-function getAnswerName(answers: Record<string, unknown>): string {
-  const entry = Object.entries(answers).find(([key]) => /(^|[_-])nama($|[_-])|nama/i.test(key));
-  return entry ? displayValue(entry[1]) : 'Pemohon';
-}
-
-function maskSensitiveValue(value: unknown): string {
-  const text = displayValue(value);
-  if (!/^\d{10,}$/.test(text)) return text;
-  return `${'•'.repeat(text.length - 4)}${text.slice(-4)}`;
-}
-
-function responseDate(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
 }
 
 async function loadAllForms(): Promise<FormSummary[]> {
@@ -81,6 +70,23 @@ export default function AdminResponsesPage() {
   const [formsError, setFormsError] = useState<string | null>(null);
   const [responsesError, setResponsesError] = useState<string | null>(null);
   const [expandedResponseId, setExpandedResponseId] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<ResponseStatus | ''>('');
+  const [kodeKec, setKodeKec] = useState('');
+  const [kecamatanOptions, setKecamatanOptions] = useState<KecamatanOption[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    apiFetch<KecamatanOption[]>('/wilayah/kecamatan', { auth: false })
+      .then((items) => {
+        if (!cancelled) setKecamatanOptions(items);
+      })
+      .catch(() => {
+        if (!cancelled) setKecamatanOptions([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -126,6 +132,8 @@ export default function AdminResponsesPage() {
     setFormDetail(null);
     const params = new URLSearchParams({ page: String(page), limit: String(PAGE_SIZE) });
     if (search) params.set('search', search);
+    if (statusFilter) params.set('status', statusFilter);
+    if (kodeKec) params.set('kode_kec', kodeKec);
 
     Promise.all([
       apiFetch<FormDetail>(`/forms/${selectedFormId}`),
@@ -147,7 +155,7 @@ export default function AdminResponsesPage() {
     return () => {
       cancelled = true;
     };
-  }, [page, search, selectedFormId]);
+  }, [page, search, selectedFormId, statusFilter, kodeKec]);
 
   useEffect(() => {
     let cancelRequest: (() => void) | undefined;
@@ -161,6 +169,23 @@ export default function AdminResponsesPage() {
     event.preventDefault();
     setPage(1);
     setSearch(searchInput.trim());
+  }
+
+  function handleResponseUpdated(updated: FormResponse) {
+    setResponses((prev) => {
+      if (!prev) return prev;
+      if (statusFilter && updated.status !== statusFilter) {
+        return {
+          ...prev,
+          items: prev.items.filter((item) => item.id !== updated.id),
+          total: Math.max(0, prev.total - 1),
+        };
+      }
+      return {
+        ...prev,
+        items: prev.items.map((item) => (item.id === updated.id ? updated : item)),
+      };
+    });
   }
 
   const answerLabels = useMemo(() => {
@@ -229,6 +254,45 @@ export default function AdminResponsesPage() {
           </form>
         </div>
 
+        <div className="mt-3 flex flex-wrap items-end gap-3">
+          <label className="flex min-w-[170px] flex-col gap-1.5 text-xs font-black text-slate-600">
+            Status pengajuan
+            <select
+              value={statusFilter}
+              onChange={(event) => {
+                setPage(1);
+                setExpandedResponseId(null);
+                setStatusFilter(event.target.value as ResponseStatus | '');
+              }}
+              className="rounded-xl border-2 border-slate-300 bg-white px-3 py-2.5 text-sm font-bold text-slate-900"
+            >
+              {STATUS_FILTERS.map((option) => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+          </label>
+          <label className="flex min-w-[190px] flex-col gap-1.5 text-xs font-black text-slate-600">
+            Kecamatan
+            <select
+              value={kodeKec}
+              onChange={(event) => {
+                setPage(1);
+                setExpandedResponseId(null);
+                setKodeKec(event.target.value);
+              }}
+              disabled={!kecamatanOptions.length}
+              className="rounded-xl border-2 border-slate-300 bg-white px-3 py-2.5 text-sm font-bold text-slate-900 disabled:bg-slate-50"
+            >
+              <option value="">Semua kecamatan</option>
+              {kecamatanOptions.map((kecamatan) => (
+                <option key={kecamatan.kode_kec} value={String(kecamatan.kode_kec)}>
+                  {kecamatan.nama_kecamatan}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
         {selectedForm && (
           <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border-2 border-slate-200 bg-slate-50 px-4 py-3">
             <div>
@@ -261,6 +325,7 @@ export default function AdminResponsesPage() {
                   <tr className="border-b-2 border-slate-900 text-[10px] font-black uppercase tracking-wide text-slate-500">
                     <th className="px-3 py-3">Pemohon</th>
                     <th className="px-3 py-3">Nomor registrasi</th>
+                    <th className="px-3 py-3">Status</th>
                     <th className="px-3 py-3">Tanggal masuk</th>
                     <th className="px-3 py-3 text-right">Detail</th>
                   </tr>
@@ -268,12 +333,18 @@ export default function AdminResponsesPage() {
                 <tbody className="divide-y divide-slate-200">
               {responses.items.map((response) => {
                 const expanded = expandedResponseId === response.id;
+                const statusMeta = responseStatusMeta(response.status);
                 return (
                   <tr key={response.id} className="group">
-                    <td colSpan={4} className="p-0">
-                      <div className="grid grid-cols-[minmax(160px,1fr)_minmax(150px,1fr)_minmax(145px,1fr)_auto] items-center gap-3 px-3 py-4">
+                    <td colSpan={5} className="p-0">
+                      <div className="grid grid-cols-[minmax(160px,1fr)_minmax(140px,1fr)_minmax(120px,0.8fr)_minmax(140px,1fr)_auto] items-center gap-3 px-3 py-4">
                         <span className="truncate text-sm font-black text-slate-900">{getAnswerName(response.answers)}</span>
                         <span className="text-xs font-bold text-slate-700">{response.registration_number || '—'}</span>
+                        <span>
+                          <span className={`inline-flex rounded-md border px-2 py-0.5 text-[10px] font-black uppercase ${statusMeta.className}`}>
+                            {statusMeta.label}
+                          </span>
+                        </span>
                         <span className="text-xs font-semibold text-slate-500">{responseDate(response.submitted_at)}</span>
                         <button
                           type="button"
@@ -285,23 +356,11 @@ export default function AdminResponsesPage() {
                         </button>
                       </div>
                     {expanded && (
-                      <div className="border-t border-slate-200 bg-slate-50 px-4 py-4">
-                        <h3 className="text-xs font-black text-slate-800">Jawaban pemohon</h3>
-                        <dl className="mt-3 grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
-                          {Object.entries(response.answers).map(([key, value]) => {
-                            const label = answerLabels.get(key) ?? key.replace(/[_-]/g, ' ');
-                            const isSensitive = /nik|nomor induk kependudukan/i.test(`${key} ${label}`);
-                            return (
-                              <div key={key} className="min-w-0 border-b border-slate-200 pb-2">
-                                <dt className="text-[10px] font-black uppercase text-slate-500">{label}</dt>
-                                <dd className="mt-0.5 break-words text-xs font-semibold text-slate-800">
-                                  {isSensitive ? maskSensitiveValue(value) : displayValue(value)}
-                                </dd>
-                              </div>
-                            );
-                          })}
-                        </dl>
-                      </div>
+                      <ResponseDetail
+                        response={response}
+                        answerLabels={answerLabels}
+                        onUpdated={handleResponseUpdated}
+                      />
                     )}
                     </td>
                   </tr>
@@ -341,9 +400,9 @@ export default function AdminResponsesPage() {
           <div className="py-12 text-center">
             <Inbox className="mx-auto h-8 w-8 text-slate-300" />
             <p className="mt-3 text-sm font-black text-slate-700">
-              {search ? 'Tidak ada respons yang cocok.' : 'Belum ada respons masuk.'}
+              {search || statusFilter || kodeKec ? 'Tidak ada respons yang cocok.' : 'Belum ada respons masuk.'}
             </p>
-            {!search && (
+            {!search && !statusFilter && !kodeKec && (
               <p className="mt-1 text-xs font-semibold text-slate-500">Respons baru akan muncul di sini setelah pemohon mengirim formulir.</p>
             )}
           </div>

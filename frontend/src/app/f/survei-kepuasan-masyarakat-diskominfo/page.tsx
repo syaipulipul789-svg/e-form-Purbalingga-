@@ -166,6 +166,7 @@ export default function SKMPage() {
   const [regNumber, setRegNumber] = useState<string>('');
   const [submittedAt, setSubmittedAt] = useState<string>('');
   const [uploadStatus, setUploadStatus] = useState<string>('');
+  const [submitError, setSubmitError] = useState<string>('');
 
   // Load draft
   useEffect(() => {
@@ -226,7 +227,7 @@ export default function SKMPage() {
   }, [form, slug, submitted]);
 
   const apiBase =
-    process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8088/api/v1';
+    process.env.NEXT_PUBLIC_API_URL || '/api/v1';
 
   const setField = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -275,6 +276,7 @@ export default function SKMPage() {
     e.preventDefault();
     if (!validate()) return;
     if (submitting) return;
+    setSubmitError('');
     setSubmitting(true);
     setUploadStatus('Menyimpan isian survei...');
     try {
@@ -316,23 +318,47 @@ export default function SKMPage() {
         saran_umum: form.saranUmum,
       };
 
-      let reg = '';
+      let submitRes: Response;
       try {
-        const res = await fetch(`${apiBase}/public/forms/${slug}/submit`, {
+        submitRes = await fetch(`${apiBase}/public/forms/${slug}/submit`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Idempotency-Key': crypto.randomUUID() },
           body: JSON.stringify({ respondent_nik: '', answers }),
         });
-        const json = await res.json();
-        if (json?.success && json?.data?.registration_number) {
-          reg = json.data.registration_number;
-        }
       } catch {
-        /* backend unavailable -> local receipt */
+        throw new Error('Tidak dapat menghubungi server. Periksa koneksi Anda lalu coba lagi.');
       }
 
+      const submitJson = (await submitRes.json().catch(() => null)) as
+        | {
+            success?: boolean;
+            message?: string;
+            data?: { registration_number?: string };
+            error?: { code?: string; details?: Record<string, string> };
+          }
+        | null;
+
+      if (!submitRes.ok || !submitJson?.success) {
+        const details = submitJson?.error?.details;
+        let detailText = '';
+        if (details && typeof details === 'object') {
+          setErrors((prev) => ({ ...prev, ...(details as Record<string, string>) }));
+          detailText = Object.values(details as Record<string, string>)
+            .filter((value) => typeof value === 'string' && value.trim() !== '')
+            .join(' ');
+        }
+        throw new Error(
+          detailText ||
+            submitJson?.message ||
+            (submitRes.status === 409
+              ? 'Data ini sudah pernah terkirim.'
+              : 'Survei gagal dikirim. Silakan periksa kembali isian Anda.'),
+        );
+      }
+
+      const reg = submitJson?.data?.registration_number;
       if (!reg) {
-        reg = `PBG-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}${String.fromCharCode(65 + Math.floor(Math.random() * 26))}`;
+        throw new Error('Server tidak mengembalikan nomor registrasi. Silakan coba lagi.');
       }
 
       const now = new Date().toLocaleString('id-ID', {
@@ -343,21 +369,12 @@ export default function SKMPage() {
         minute: '2-digit',
       });
 
-      try {
-        const existing = JSON.parse(
-          localStorage.getItem(`form_submissions_${slug}`) || '[]'
-        );
-        existing.push({ registration_number: reg, submitted_at: now, answers });
-        localStorage.setItem(
-          `form_submissions_${slug}`,
-          JSON.stringify(existing)
-        );
-      } catch {}
-
       localStorage.removeItem(`form_draft_${slug}`);
       setRegNumber(reg);
       setSubmittedAt(now);
       setSubmitted(true);
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : 'Survei gagal dikirim.');
     } finally {
       setSubmitting(false);
       setUploadStatus('');
@@ -1056,6 +1073,16 @@ export default function SKMPage() {
           {uploadStatus && (
             <div className="bg-[#F0F9FF] border-2 border-slate-900 rounded-xl p-3 text-center text-xs font-black text-slate-800 shadow-[3px_3px_0px_#0F172A]">
               {uploadStatus}
+            </div>
+          )}
+
+          {submitError && (
+            <div role="alert" className="bg-[#FFE4E6] border-2 border-slate-900 rounded-xl p-4 flex items-start gap-3 shadow-[3px_3px_0px_#0F172A]">
+              <AlertCircle className="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" />
+              <div className="text-xs font-bold text-rose-950">
+                <p className="font-black">Survei gagal dikirim</p>
+                <p className="mt-0.5">{submitError}</p>
+              </div>
             </div>
           )}
 

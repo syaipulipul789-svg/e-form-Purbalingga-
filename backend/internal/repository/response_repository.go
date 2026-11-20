@@ -14,17 +14,22 @@ import (
 )
 
 var (
-	ErrDuplicateResponse  = errors.New("respons sudah pernah dikirim untuk NIK ini")
-	ErrQuotaExceeded      = errors.New("kuota respons formulir sudah penuh")
+	ErrDuplicateResponse    = errors.New("respons sudah pernah dikirim untuk NIK ini")
+	ErrQuotaExceeded        = errors.New("kuota respons formulir sudah penuh")
 	ErrRegistrationConflict = errors.New("nomor registrasi bentrok")
+	ErrResponseNotFound     = errors.New("respons tidak ditemukan")
+	ErrSubmissionNotFound   = errors.New("pengajuan tidak ditemukan")
 )
 
-const responseColumns = `id, form_id, registration_number, respondent_identifier, answers, metadata, submitted_at`
+const responseColumns = `id, form_id, registration_number, respondent_identifier, answers, metadata, status, internal_note, public_note, verified_by, verified_at, submitted_at, updated_at`
 
 // ResponseRepository adalah kontrak akses data respons formulir.
 type ResponseRepository interface {
 	Create(ctx context.Context, formID uuid.UUID, response *domain.FormResponse, enforceUnique bool, maxSubmissions int) error
 	ListByForm(ctx context.Context, formID uuid.UUID, q domain.FormResponseListQuery) ([]domain.FormResponse, int, error)
+	GetByID(ctx context.Context, formID, responseID uuid.UUID) (*domain.FormResponse, error)
+	UpdateStatus(ctx context.Context, formID, responseID uuid.UUID, status, publicNote, internalNote string, verifiedBy uuid.UUID, audit AuditRecord) (*domain.FormResponse, error)
+	FindForTracking(ctx context.Context, registrationNumber, respondentHash string) (*domain.PublicTrackResponse, error)
 }
 
 type responseRepository struct {
@@ -107,6 +112,10 @@ func (r *responseRepository) ListByForm(ctx context.Context, formID uuid.UUID, q
 		args = append(args, kodeKec)
 		where += fmt.Sprintf(" AND answers->'f_wilayah'->>'kode_kec' = $%d", len(args))
 	}
+	if status := strings.TrimSpace(q.Status); status != "" {
+		args = append(args, status)
+		where += fmt.Sprintf(" AND status = $%d", len(args))
+	}
 
 	var total int
 	if err := r.db.GetContext(ctx, &total, "SELECT COUNT(*) FROM form_responses"+where, args...); err != nil {
@@ -123,6 +132,73 @@ func (r *responseRepository) ListByForm(ctx context.Context, formID uuid.UUID, q
 		return nil, 0, err
 	}
 	return items, total, nil
+}
+
+func (r *responseRepository) GetByID(ctx context.Context, formID, responseID uuid.UUID) (*domain.FormResponse, error) {
+	var response domain.FormResponse
+	query := "SELECT " + responseColumns + " FROM form_responses WHERE id = $1 AND form_id = $2"
+	if err := r.db.GetContext(ctx, &response, query, responseID, formID); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrResponseNotFound
+		}
+		return nil, err
+	}
+	return &response, nil
+}
+
+func (r *responseRepository) UpdateStatus(ctx context.Context, formID, responseID uuid.UUID, status, publicNote, internalNote string, verifiedBy uuid.UUID, audit AuditRecord) (*domain.FormResponse, error) {
+	tx, err := r.db.BeginTxx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	var response domain.FormResponse
+	query := `
+		UPDATE form_responses
+		SET status = $3,
+		    public_note = $4,
+		    internal_note = $5,
+		    verified_by = CASE WHEN $3 = 'SUBMITTED' THEN NULL ELSE $6 END,
+		    verified_at = CASE WHEN $3 = 'SUBMITTED' THEN NULL ELSE NOW() END,
+		    updated_at = NOW()
+		WHERE id = $1 AND form_id = $2
+		RETURNING ` + responseColumns
+	if err := tx.GetContext(ctx, &response, query, responseID, formID, status, publicNote, internalNote, verifiedBy); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrResponseNotFound
+		}
+		return nil, err
+	}
+
+	audit.EntityID = &response.ID
+	if err := insertAudit(ctx, tx, audit); err != nil {
+		return nil, err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+	return &response, nil
+}
+
+func (r *responseRepository) FindForTracking(ctx context.Context, registrationNumber, respondentHash string) (*domain.PublicTrackResponse, error) {
+	var item domain.PublicTrackResponse
+	query := `
+		SELECT r.registration_number, f.title AS form_title, r.status, r.public_note,
+		       r.submitted_at, r.updated_at
+		FROM form_responses r
+		JOIN forms f ON f.id = r.form_id
+		WHERE UPPER(r.registration_number) = UPPER($1) AND r.respondent_identifier = $2`
+	if err := r.db.GetContext(ctx, &item, query, registrationNumber, respondentHash); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ErrSubmissionNotFound
+		}
+		return nil, err
+	}
+	return &item, nil
 }
 
 func mapResponseInsertError(err error) error {

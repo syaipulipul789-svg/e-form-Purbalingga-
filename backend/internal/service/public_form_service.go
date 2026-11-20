@@ -47,6 +47,7 @@ type formSettings struct {
 type PublicFormService interface {
 	GetBySlug(ctx context.Context, slug string) (*domain.PublicFormDetail, error)
 	Submit(ctx context.Context, slug string, req domain.PublicSubmitRequest, ipAddress, userAgent string) (*domain.PublicSubmitResponse, error)
+	Track(ctx context.Context, registrationNumber, nik string) (*domain.PublicTrackResponse, error)
 }
 
 type publicFormService struct {
@@ -209,6 +210,32 @@ func (s *publicFormService) Submit(ctx context.Context, slug string, req domain.
 		RegistrationNumber: registrationNumber,
 		SubmittedAt:        response.SubmittedAt,
 	}, nil
+}
+
+func (s *publicFormService) Track(ctx context.Context, registrationNumber, nik string) (*domain.PublicTrackResponse, error) {
+	registrationNumber = strings.ToUpper(strings.TrimSpace(registrationNumber))
+	nik = strings.TrimSpace(nik)
+
+	fields := map[string]string{}
+	if registrationNumber == "" {
+		fields["registration_number"] = "Nomor registrasi wajib diisi"
+	}
+	if message := validateNIK(nik); message != "" {
+		fields["nik"] = message
+	}
+	if len(fields) > 0 {
+		return nil, &ValidationError{Fields: fields}
+	}
+
+	hash := sha256.Sum256([]byte(nik))
+	item, err := s.responseRepo.FindForTracking(ctx, registrationNumber, hex.EncodeToString(hash[:]))
+	if err != nil {
+		if errors.Is(err, repository.ErrSubmissionNotFound) {
+			return nil, repository.ErrSubmissionNotFound
+		}
+		return nil, err
+	}
+	return item, nil
 }
 
 func (s *publicFormService) openState(form *domain.Form, settings formSettings) (bool, string) {
